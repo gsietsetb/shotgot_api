@@ -1,0 +1,29 @@
+{
+  "name": "shotgot_api",
+  "version": "1.0.0",
+  "description": "Visual Search Engine",
+  "main": "server.js",
+  "dependencies": {
+    "express": "~4.0.0",
+    "mongoose": "~4.4.19",
+    "body-parser": "~1.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gsietsetb/ShotGot.git"
+  },
+  "keywords": [
+    "API",
+    "ImageRecognition",
+    "visualSearch"
+  ],
+  "author": "gsierra",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gsietsetb/ShotGot/issues"
+  },
+  "homepage": "https://github.com/gsietsetb/ShotGot#readme"
+}

@@ -1,0 +1,20 @@
+HTTP/1.1 100 Continue
+
+HTTP/1.1 200 OK
+Cache-Control: max-age=0, private, must-revalidate
+Content-Type: application/json; charset=utf-8
+Date: Thu, 26 Jan 2017 05:04:20 GMT
+ETag: "3c9b4ed2ad8019e8b76a4da5e22f37cc"
+Server: nginx/1.8.1
+Set-Cookie: _imagetag_session=QTVjc292SERKUTRvR250SkkwVDlXMUF3M0VoNkNWZW9TU0daQmdVNENja0lGaVZCYk5iK1E3ZURKTXlhWDV6MWcwbkd0cXkrYWdQNEtjOXAvTXNJZkE9PS0tZ2N3RXhTbktxbm5FZkU1MUtVQ1ZBdz09--efdfa93ebd4d0d0daa3e7e99761d923da1089f98; path=/; HttpOnly
+X-CloudSight-CreditBalance: 492
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: 9977f8fc-913f-4caf-a380-911e9fe22a78
+X-Runtime: 1.022169
+X-UA-Compatible: chrome=1
+X-XSS-Protection: 1; mode=block
+Content-Length: 251
+Connection: keep-alive
+
+{"token":"oLs2-bJ6GxrnEMqi_kX3Kw","url":"http://d1spq65clhrg1f.cloudfront.net/uploads/image_request/image/167/167314/167314491/rebecca_20pewter_20underwired_20spacer_20moulded_20full_20cup_20bra_202024.jpg","ttl":53.676475194,"status":"not completed"}

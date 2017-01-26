@@ -1,0 +1,17 @@
+HTTP/1.1 200 OK
+Cache-Control: max-age=0, private, must-revalidate
+Content-Type: application/json; charset=utf-8
+Date: Thu, 26 Jan 2017 05:04:21 GMT
+ETag: "caba86fa74435441404047323789aefc"
+Server: nginx/1.8.1
+Set-Cookie: _imagetag_session=QjhrRlJ6Zk14Qm1sUCtUUmlnOXVPZG02YU1KR0d5R0tCZExMQnc0Q01vM2puYnZha0RnVUNBZzFQOENMWTA4UENxNHJ4RlNDQ0kzaTk2QWQyWWlyVXc9PS0tQThuNlRqMkFFL2MxbkJXQi9NK3Ardz09--2e31aee20c0c9aa0a8d405febf606f17df2d2f37; path=/; HttpOnly
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Request-Id: c9aeaa4f-77ca-4bf0-bc81-7d34aec1a7b5
+X-Runtime: 0.017826
+X-UA-Compatible: chrome=1
+X-XSS-Protection: 1; mode=block
+Content-Length: 291
+Connection: keep-alive
+
+{"token":"43rCnbrBe5ZGvBQAJV6j0Q","url":"http://d1spq65clhrg1f.cloudfront.net/uploads/image_request/image/167/167147/167147678/rebecca_20pewter_20underwired_20spacer_20moulded_20full_20cup_20bra_202024.jpg","ttl":53.0,"status":"completed","name":"woman in grey bra standing near white wall"}

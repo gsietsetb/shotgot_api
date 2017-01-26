@@ -1,0 +1,10 @@
+
+0.060	 time_namelookup: 
+0.068	 time_connect:  
+0.251	 time_appconnect:  
+0.251	 time_pretransfer:  
+0.000	 time_redirect:  
+0.539	 time_starttransfer:  
+                            ----------
+0.539	 time_total:  
+

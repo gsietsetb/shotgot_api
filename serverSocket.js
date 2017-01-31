@@ -17,7 +17,7 @@ app.use(express.static(__dirname + '/public'));*/
 
 /**Instance of CV APIs
  * TODO add (and fix) Blippar*/
-//Clarifai
+/*Clarifai*/
 var Clarifai = require('clarifai');
   // initialize with your clientId and clientSecret
   var clarifai = new Clarifai.App(
@@ -25,7 +25,30 @@ var Clarifai = require('clarifai');
     'QQLo9NTDvhg9R32nQaC8Fb-ogAZDyzD4YPushXH6'
   );
 
-//Clodusight
+/*Clodusight*/
+
+/*Google Cloud Vision API*/
+'use strict';
+// Imports the Google Cloud client library
+const Vision = require('@google-cloud/vision');
+// Your Google Cloud Platform project ID
+const projectId = 'YOUR_PROJECT_ID';
+// Instantiates a client
+const visionClient = Vision({
+    projectId: projectId
+});
+
+// The name of the image file to annotate
+const fileName = './resources/wakeupcat.jpg';
+
+// Performs label detection on the image file
+visionClient.detectLabels(fileName)
+    .then((results) => {
+    const labels = results[0];
+
+console.log('Labels:');
+labels.forEach((label) => console.log(label));
+});
 
 //For Load-Balancers for general Multi-thread purposes
 var numUsers = 0;

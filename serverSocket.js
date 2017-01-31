@@ -55,6 +55,7 @@ var numUsers = 0;
 
 io.on('connection', function (socket) {
     var addedUser = false;
+    console.log("User connected: "+socket.username);
 
     // when the client emits 'new message', this listens and executes
     socket.on('new picReq', function (data) {
@@ -62,6 +63,8 @@ io.on('connection', function (socket) {
         socket.username = username;
         ++numUsers;
         addedUser = true;
+        console.log("User emitting: "+data);
+
 
         /**Clarifai req*/
         clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/metro-north.jpg').then(

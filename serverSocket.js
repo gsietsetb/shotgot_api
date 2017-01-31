@@ -15,9 +15,10 @@ app.get('/', function(req, res){
 app.use(express.static(__dirname + '/public'));*/
 
 
-/**Instance of CV APIs
+/*Instance of CV APIs
  * TODO add (and fix) Blippar*/
-/*Clarifai*/
+
+/**Clarifai*/
 var Clarifai = require('clarifai');
   // initialize with your clientId and clientSecret
   var clarifai = new Clarifai.App(
@@ -25,9 +26,9 @@ var Clarifai = require('clarifai');
     'QQLo9NTDvhg9R32nQaC8Fb-ogAZDyzD4YPushXH6'
   );
 
-/*Clodusight*/
+/**Clodusight*/
 
-/*Google Cloud Vision API*/
+/**Google Cloud Vision API*/
 'use strict';
 // Imports the Google Cloud client library
 const Vision = require('@google-cloud/vision');
@@ -42,9 +43,8 @@ const visionClient = Vision({
 const fileName = './resources/wakeupcat.jpg';
 
 // Performs label detection on the image file
-visionClient.detectLabels(fileName)
-    .then((results) => {
-    const labels = results[0];
+visionClient.detectLabels(fileName).then((results) => {
+    labels = results[0];
 
 console.log('Labels:');
 labels.forEach((label) => console.log(label));

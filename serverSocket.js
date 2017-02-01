@@ -27,27 +27,18 @@ var Clarifai = require('clarifai');
 
 /**Clodusight*/
 
-/**Google Cloud Vision API
+/**Google Cloud Vision API*/
 'use strict';
 // Imports the Google Cloud client library
 const Vision = require('@google-cloud/vision');
 // Your Google Cloud Platform project ID
-const projectId = 'YOUR_PROJECT_ID';
+const projectId = '1074207413557';
 // Instantiates a client
 const visionClient = Vision({
     projectId: projectId
 });
 
-// The name of the image file to annotate
-const fileName = './resources/wakeupcat.jpg';
-
-// Performs label detection on the image file
-visionClient.detectLabels(fileName).then((results) => {
-    labels = results[0];
-
-console.log('Labels:');
-labels.forEach((label) => console.log(label));
-});*/
+const vision = Vision();
 
 //For Load-Balancers for general Multi-thread purposes
 var numUsers = 0;
@@ -70,7 +61,22 @@ io.on('connection', function (socket) {
         clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: data}).then(
             function(response) {
                 console.log("Clarifai response: "+response);
-                socket.emit('login', response);
+                socket.emit('res', response);
+            },
+            function(err) {
+                console.error(err);
+            }
+        );
+
+        /**GoogleCloud req*/
+        // clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/metro-north.jpg').then(
+        console.log("Sending data to GoogleCloud: ");//+data);
+        vision.detectLabels(data).then(
+            function(results) {
+                const labels = results[0];
+                console.log("Google response: "+results);
+                // labels.forEach((label) => console.log(label));
+                socket.emit('res', results);
             },
             function(err) {
                 console.error(err);

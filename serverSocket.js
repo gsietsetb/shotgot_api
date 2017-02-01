@@ -14,7 +14,6 @@ app.get('/', function(req, res){
 // Routing
 app.use(express.static(__dirname + '/public'));*/
 
-
 /*Instance of CV APIs
  * TODO add (and fix) Blippar*/
 
@@ -28,7 +27,7 @@ var Clarifai = require('clarifai');
 
 /**Clodusight*/
 
-/**Google Cloud Vision API*/
+/**Google Cloud Vision API
 'use strict';
 // Imports the Google Cloud client library
 const Vision = require('@google-cloud/vision');
@@ -48,28 +47,29 @@ visionClient.detectLabels(fileName).then((results) => {
 
 console.log('Labels:');
 labels.forEach((label) => console.log(label));
-});
+});*/
 
 //For Load-Balancers for general Multi-thread purposes
 var numUsers = 0;
 
 io.on('connection', function (socket) {
     var addedUser = false;
-    console.log("User connected: "+socket.username);
+    console.log("User ["+numUsers+"] connected: ");//+socket.username);
 
     // when the client emits 'new message', this listens and executes
-    socket.on('new picReq', function (data) {
+    socket.on('EVENT_MESSAGE', function (data) {
         // we store the username in the socket session for this client
-        socket.username = username;
+        // socket.username = username;
         ++numUsers;
         addedUser = true;
-        console.log("User emitting: "+data);
-
+        console.log("User emitting: ");//+data);
 
         /**Clarifai req*/
-        clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/metro-north.jpg').then(
+        // clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/metro-north.jpg').then(
+        console.log("Sending data to Clarify: ");//+data);
+        clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: data}).then(
             function(response) {
-                console.log(response);
+                console.log("Clarifai response: "+response);
                 socket.emit('login', response);
             },
             function(err) {
@@ -83,7 +83,6 @@ io.on('connection', function (socket) {
             message: data
         });
     });
-
 
     /**Not really required anymore...
     // when the client emits 'add user', this listens and executes
@@ -123,11 +122,12 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         if (addedUser) {
             --numUsers;
-
+            console.log("User left...");
             // echo globally that this client has left
             socket.broadcast.emit('user left', {
                 username: socket.username,
                 numUsers: numUsers
+
             });
         }
     });

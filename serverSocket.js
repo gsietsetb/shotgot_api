@@ -77,11 +77,11 @@ io.on('connection', function (socket) {
             }
         );
 
-        // we tell the client to execute 'new message'
+        /* we tell the client to execute 'new message'
         socket.broadcast.emit('new picReq', {
             username: socket.username,
             message: data
-        });
+        });*/
     });
 
     /**Not really required anymore...

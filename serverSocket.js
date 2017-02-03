@@ -1,3 +1,6 @@
+// var Promise = require('bluebird');
+// var rpc = require('socket.io-rpc');
+
 /**Todo Change to Restify*/
 var app = require('express')();
 var server = require('http').createServer(app);
@@ -19,11 +22,15 @@ app.use(express.static(__dirname + '/public'));*/
 
 /**Clarifai*/
 var Clarifai = require('clarifai');
-  // initialize with your clientId and clientSecret
-  var clarifai = new Clarifai.App(
+// initialize with your clientId and clientSecret
+var clarifai = new Clarifai.App(
     'SieJMnA5BP4CkpL0YoXEGOEj7VKAGrH8VLZpD7zm',
     'QQLo9NTDvhg9R32nQaC8Fb-ogAZDyzD4YPushXH6'
   );
+
+function reqTagClarifai(data) {
+
+}
 
 /**Clodusight*/
 
@@ -56,7 +63,6 @@ io.on('connection', function (socket) {
         console.log("User emitting: ");//+data);
 
         /**Clarifai req*/
-        // clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/metro-north.jpg').then(
         console.log("Sending data to Clarify: ");//+data);
         clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: data}).then(
             function(response) {
@@ -68,8 +74,9 @@ io.on('connection', function (socket) {
             }
         );
 
-        /**GoogleCloud req*/
-        // clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/metro-north.jpg').then(
+        console.log("Would be now asking to Google: ");
+
+        /**GoogleCloud req
         console.log("Sending data to GoogleCloud: ");//+data);
         vision.detectLabels(data).then(
             function(results) {
@@ -81,7 +88,8 @@ io.on('connection', function (socket) {
             function(err) {
                 console.error(err);
             }
-        );
+        );*/
+        console.log("Here would go Google's response ");
 
         /* we tell the client to execute 'new message'
         socket.broadcast.emit('new picReq', {

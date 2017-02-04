@@ -28,18 +28,41 @@ io.on('connection', function (socket) {
     console.log("User ["+numUsers+"] connected: ");//+socket.username);
 
     // when the client emits 'new message', this listens and executes
-    socket.on('PIC_REQ', function (data) {
+    socket.on('PIC_REQ', function (base64Data) {
         // we store the username in the socket session for this client
         // socket.username = username;
         ++numUsers;
         addedUser = true;
-        console.log("User emitting: "+data[60]);
+        console.log("User emitting: "+base64Data[60]);
+
+        /**Cloudsight req*/
+        console.log("Sending data to Cloudsight: "+base64Data[40]);
+        var filename = "img"+base64Data[4]+base64Data[40]+".jpg";
+        require("fs").writeFile(filename, base64Data, 'base64', function(err) {
+            console.log(err);
+        });
+        var image = {
+            image: filename,
+            ttl: '3'  //Analysis deadline ttl
+        };
+        cloudsight.request (image, true, function(err, resp) {
+            if (err) {
+                console.log (err);
+                return;
+            }
+            if (resp.status === 'completed') {
+                console.log(resp.name);
+                socket.emit('CLOUDSIGHT', resp.name);
+            } else {
+                console.log('Sorry, something is wrong.\n'+resp.status);
+            }
+        });
 
         /**Clarifai req*/
-        console.log("Sending data to Clarify: "+data[40]);
+        console.log("Sending data to Clarify: "+base64Data[40]);
         clarifai
             .models
-            .predict(Clarifai.GENERAL_MODEL, {base64: data})
+            .predict(Clarifai.GENERAL_MODEL, {base64: base64Data})
             .then(
                 function(resp) {
                     if (resp.status.description === 'Ok') {
@@ -63,10 +86,10 @@ io.on('connection', function (socket) {
                 function(err) {
                     console.log(err)
                 });
-        console.log("Req color to Clarify: "+data[40]);
+        console.log("Req color to Clarify: "+base64Data[40]);
         clarifai
             .models
-            .predict(Clarifai.COLOR_MODEL, {base64: data})
+            .predict(Clarifai.COLOR_MODEL, {base64: base64Data})
             .then(
                 function(resp) {
                     if (resp.status.description === 'Ok') {
@@ -169,6 +192,11 @@ var clarifai = new Clarifai.App(
     'QQLo9NTDvhg9R32nQaC8Fb-ogAZDyzD4YPushXH6'
 );
 
+/**Clodusight*/
+var cloudsight = require ('cloudsight') ({
+    apikey: 'bq-pbxKLtdbnpnZ501zfkg'
+});
+
 function predictClarifai(imgBase64) {
     clarifai
         .models
@@ -193,7 +221,7 @@ function predictClarifai(imgBase64) {
             });
 }
 
-/**Clodusight*/
+
 
 /**Google Cloud Vision API*/
 // Imports the Google Cloud client library

@@ -38,8 +38,10 @@ io.on('connection', function (socket) {
         /**Cloudsight req*/
         console.log("Sending data to Cloudsight: "+base64Data[40]);
         var filename = "img"+base64Data[4]+base64Data[40]+".jpg";
+        console.log("Cldsight filename: "+ filename);
+
         require("fs").writeFile(filename, base64Data, 'base64', function(err) {
-            console.log(err);
+            console.log("Cldsight: "+ err);
         });
         var image = {
             image: filename,

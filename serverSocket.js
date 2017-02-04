@@ -28,7 +28,7 @@ io.on('connection', function (socket) {
     console.log("User ["+numUsers+"] connected: ");//+socket.username);
 
     // when the client emits 'new message', this listens and executes
-    socket.on('EVENT_MESSAGE', function (data) {
+    socket.on('PIC_REQ', function (data) {
         // we store the username in the socket session for this client
         // socket.username = username;
         ++numUsers;
@@ -44,14 +44,36 @@ io.on('connection', function (socket) {
                 function(resp) {
                     if (resp.status.description === 'Ok') {
                         var concepts = resp.rawData.outputs[0].data.concepts;
-                        /**Todo get array?
-                             var data = resp.rawData.outputs[0].data.concepts;
-                             for(var i=0;i<=data.length;i++){
-                            // var tags = data[i].name;//collectTags(data);
-                            // tags = results[0].result.tag.classes;
-                         }*/
-                        console.log(concepts);
-                        socket.emit('EVENT_MESSAGE', concepts);
+                        for(var i=0;i<=concepts.length;i++){
+                            if(concepts[i].value>0.7
+                                &&concepts[i].name!="no person"
+                                &&concepts[i].name!="indoors"
+                                &&concepts[i].name!="one"
+                                &&concepts[i].name!="empty"
+                            ){
+                                socket.emit('CLARIFAI_CONCEPTS', concepts[i].name);
+                                console.log(concepts[i].name);
+                            }
+                        }
+                    } else {
+                        console.log('Sorry, something is wrong.\n'+resp.status.description);
+                    }            },
+                function(err) {
+                    console.log(err)
+                });
+        console.log("Req color to Clarify: "+data[40]);
+        clarifai
+            .models
+            .predict(Clarifai.COLOR_MODEL, {base64: data})
+            .then(
+                function(resp) {
+                    if (resp.status.description === 'Ok') {
+                        var col = resp.rawData.outputs[0].data.colors.w3c;
+                        for(var i=0;i<=col.length;i++){
+                            // if(col[i].value>0.5)
+                            socket.emit('CLARIFAI_COLOR', col[i].rex);
+                            console.log(col);
+                        }
                     } else {
                         console.log('Sorry, something is wrong.\n'+resp.status.description);
                     }            },

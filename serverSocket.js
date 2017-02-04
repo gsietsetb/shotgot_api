@@ -50,6 +50,8 @@ io.on('connection', function (socket) {
                                 &&concepts[i].name!="indoors"
                                 &&concepts[i].name!="one"
                                 &&concepts[i].name!="empty"
+                                &&concepts[i].name!="furniture"
+                                &&concepts[i].name!="room"
                             ){
                                 socket.emit('CLARIFAI_CONCEPTS', concepts[i].name);
                                 console.log(concepts[i].name);

@@ -70,11 +70,11 @@ io.on('connection', function (socket) {
             .then(
                 function(resp) {
                     if (resp.status.description === 'Ok') {
-                        var col = resp.rawData.outputs[0].data.colors.w3c;
+                        var col = resp.rawData.outputs[0].data.colors;
                         for(var i=0;i<=col.length;i++){
                             // if(col[i].value>0.5)
-                            socket.emit('CLARIFAI_COLOR', col[i].hex);
-                            console.log(col);
+                            socket.emit('CLARIFAI_COLOR', col[i].w3c.hex);
+                            console.log(col[i].w3c.hex);
                         }
                     } else {
                         console.log('Sorry, something is wrong.\n'+resp.status.description);

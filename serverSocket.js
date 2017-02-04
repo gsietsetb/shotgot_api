@@ -73,7 +73,7 @@ io.on('connection', function (socket) {
                         var col = resp.rawData.outputs[0].data.colors.w3c;
                         for(var i=0;i<=col.length;i++){
                             // if(col[i].value>0.5)
-                            socket.emit('CLARIFAI_COLOR', col[i].rex);
+                            socket.emit('CLARIFAI_COLOR', col[i].hex);
                             console.log(col);
                         }
                     } else {

@@ -44,8 +44,8 @@ io.on('connection', function (socket) {
             console.log("Cldsight: "+ err);
         });
         var image = {
-            image: filename,
-            ttl: '3'  //Analysis deadline ttl
+            image: filename//,
+            // ttl: '3'  //Analysis deadline ttl
         };
         cloudsight.request (image, true, function(err, resp) {
             if (err) {

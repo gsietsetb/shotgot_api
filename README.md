@@ -3,17 +3,13 @@ Visual Search engine Cloud API
 
 In order to run it, please install the following dependencies:
 
-
 ```
-npm install socket.io --save
-npm install clarifai --save
-npm install cloudsight --save
-npm install @google-cloud/vision --save
-npm install googleapis --save
-npm install google-auth-library --save
-
-```
-(ToBe Deprecated)
-```
-npm install express --save
+npm install --save socket.io
+npm install --save clarifai
+npm install --save cloudsight
+npm install --save @google-cloud/vision
+npm install --save google-auth-library
+npm install --save googleapis
+npm install --save dotenv
+npm install --save express
 ```

@@ -5,8 +5,10 @@ var app = require('express')();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var fs = require("fs");
+var filename = './img.jpg';
 /**APIs requires*/
-var clarifai = require('clarifai').App(
+var Clarifai = require('clarifai');
+var clarifai = new Clarifai.App(
     process.env.CLARIFAI_ID,
     process.env.CLARIFAI_SECRET
 );
@@ -14,18 +16,18 @@ var cloudsight = require ('cloudsight') ({
     apikey: process.env.CLOUDSIGHT_KEY
 });
 
-var google = require('googleapis');
-const googleVision = require('@google-cloud/vision');
-var googleAuthFactory = require('google-auth-library')();
-// var authFactory = new googleAuth();
+var Google = require('googleapis');
+var GoogleAuth = require('google-auth-library');
+var GoogleAuthFactory = new GoogleAuth();
+const GoogleVision = require('@google-cloud/vision');
+const googleVision = GoogleVision();
 
 var port = process.env.PORT || 3001;
 server.listen(port, function(){
     console.log('Server listening at port %d', port);
 });
 
-
-googleAuthFactory.getApplicationDefault(function(err, authClient) {
+GoogleAuthFactory.getApplicationDefault(function(err, authClient) {
     if (err) {
         console.log('Authentication failed because of ', err);
         return;
@@ -36,11 +38,9 @@ googleAuthFactory.getApplicationDefault(function(err, authClient) {
     }
 });
 
-var filename = './img.jpg';
-
-googleVision.detectProperties(filename, function(err, faces) {
-    console.log(faces);
-});
+// googleVision.detectProperties(filename, function(err, faces) {
+//     console.log(faces);
+// });
 
 io.on('connection', function (socket) {
     console.log("User connected: ");
@@ -49,21 +49,21 @@ io.on('connection', function (socket) {
         console.log("User emitting: ");
 
         /**Convert data64 into a file (needed by some APIs)*/
-        console.log("filename created: "+ filename);
+        // console.log("filename created: "+ filename);
 
-        fs.writeFile(filename, base64Data, 'base64', function(err) {
+        fs.writeFile("img.jpg",  new Buffer(base64Data, "base64"), function(err) {
             console.log("FileCreationError: "+ err);
         });
 
         /**Google req*/
-        console.log("Sending data to Google: "+base64Data[40]);
+        console.log("Sending data to Google: ");
         googleVision.detectLogos(filename).then(
             function(resp) {
                 const logos = resp[0];
                 // console.log('Logos:');
                 // logos.forEach((logo) => console.log(logo);
                 socket.emit('GOOGLE_LOGOS', logos);
-                console.log(logos);
+                console.log("GoogleLogo: "+ logos);
             }, function(err) {
                 console.log("GoogleLogoError: "+ err);
             });
@@ -71,7 +71,7 @@ io.on('connection', function (socket) {
             function(resp) {
                 const labels = resp[0];
                 socket.emit('GOOGLE_LABELS', labels);
-                console.log(labels);
+                console.log("GoogleLabel: "+labels);
             }, function(err) {
                 console.log("GoogleLabelError: "+ err);
             });
@@ -79,7 +79,7 @@ io.on('connection', function (socket) {
             function(resp) {
                 const text = resp[0];
                 socket.emit('GOOGLE_TEXT', text);
-                console.log(text);
+                console.log("GoogleText: "+text);
             }, function(err) {
                 console.log("GoogleTextError: "+ err);
             });
@@ -87,8 +87,8 @@ io.on('connection', function (socket) {
         console.log("Sending data to Cloudsight: "+base64Data[40]);
 
         var imgCloudsight = {
-            image: filename//,
-            // ttl: '3'  //Analysis deadline ttl
+            image: '/img.jpg',
+            locale: 'en-US'  //Todo Add TTL ?
         };
         cloudsight.request (imgCloudsight, true, function(err, resp) {
             if (err) {

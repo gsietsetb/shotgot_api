@@ -7,20 +7,61 @@ server.listen(port, function(){
     console.log('Server listening at port %d', port);
 });
 
+//To avoid code incorrectness
 'use strict';
 
+/*Instance of CV APIs
+ * TODO add (and fix) Blippar*/
 
+/**Clarifai*/
+var Clarifai = require('clarifai');
+// initialize with your clientId and clientSecret
+var clarifai = new Clarifai.App(
+    'SieJMnA5BP4CkpL0YoXEGOEj7VKAGrH8VLZpD7zm',
+    'QQLo9NTDvhg9R32nQaC8Fb-ogAZDyzD4YPushXH6'
+);
 
-/**Todo afterwards in order to implement a frontend
- app.get('/', function(req, res){
-    res.send('<h1>Hello world</h1>');
+/**Clodusight*/
+var cloudsight = require ('cloudsight') ({
+    apikey: 'bq-pbxKLtdbnpnZ501zfkg'
 });
- // Routing
- app.use(express.static(__dirname + '/public'));*/
+
+function predictClarifai(imgBase64) {
+    clarifai
+        .models
+        .predict(Clarifai.GENERAL_MODEL, {base64: imgBase64})
+        .then(
+            function(resp) {
+                if (resp.status.description === 'Ok') {
+                    return resp.rawData.outputs[0].data.concepts;
+                    /**Todo get array?
+                     var data = resp.rawData.outputs[0].data.concepts;
+                     for(var i=0;i<=data.length;i++){
+                        // var tags = data[i].name;//collectTags(data);
+                        // tags = results[0].result.tag.classes;
+                        console.log(tags);
+                    }*/
+                    socket.emit('EVENT_MESSAGE', response);
+                } else {
+                    console.log('Sorry, something is wrong.\n'+resp.status.description);
+                }            },
+            function(err) {
+                console.log(err)
+            });
+}
 
 
+/**Google Cloud GoogleVision API*/
+// Imports the Google Cloud client library
+const GoogleVision = require('@google-cloud/vision');
+// Your Google Cloud Platform project ID
+const projectId = 'shotgot-156720';//'1074207413557';
+// Instantiates a client
+const googleCloud = GoogleVision({
+    projectId: projectId
+});
 
-//For Load-Balancers for general Multi-thread purposes
+//For metrics, Load-Balancers (Multi-thread purposes)
 var numUsers = 0;
 
 io.on('connection', function (socket) {
@@ -35,21 +76,52 @@ io.on('connection', function (socket) {
         addedUser = true;
         console.log("User emitting: "+base64Data[60]);
 
-        /**Cloudsight req*/
-        console.log("Sending data to Cloudsight: "+base64Data[40]);
-        var filename = "img"+base64Data[4]+base64Data[40]+".jpg";
-        console.log("Cldsight filename: "+ filename);
+        /**Convert data64 into a file (needed by some APIs)*/
+        var filename = "img.jpg";
+        console.log("filename created: "+ filename);
 
         require("fs").writeFile(filename, base64Data, 'base64', function(err) {
-            console.log("Cldsight: "+ err);
+            console.log("FileCreationError: "+ err);
         });
+
+        /**Google req*/
+        console.log("Sending data to Google: "+base64Data[40]);
+        googleCloud.detectLogos(filename).then(
+            function(resp) {
+                const logos = resp[0];
+                // console.log('Logos:');
+                // logos.forEach((logo) => console.log(logo);
+                socket.emit('GOOGLE_LOGOS', logos);
+                console.log(logos);
+            }, function(err) {
+                console.log("GoogleLogoError: "+ err);
+            });
+        googleCloud.detectLabels(filename).then(
+            function(resp) {
+                const labels = resp[0];
+                socket.emit('GOOGLE_LABELS', labels);
+                console.log(labels);
+            }, function(err) {
+                console.log("GoogleLabelError: "+ err);
+            });
+        googleCloud.detectText(filename).then(
+            function(resp) {
+                const text = resp[0];
+                socket.emit('GOOGLE_TEXT', text);
+                console.log(text);
+            }, function(err) {
+                console.log("GoogleTextError: "+ err);
+            });
+        /**Cloudsight req*/
+        console.log("Sending data to Cloudsight: "+base64Data[40]);
+
         var image = {
             image: filename//,
             // ttl: '3'  //Analysis deadline ttl
         };
         cloudsight.request (image, true, function(err, resp) {
             if (err) {
-                console.log (err);
+                console.log ("Cloudsight error: "+err);
                 return;
             }
             if (resp.status === 'completed') {
@@ -59,6 +131,7 @@ io.on('connection', function (socket) {
                 console.log('Sorry, something is wrong.\n'+resp.status);
             }
         });
+
 
         /**Clarifai req*/
         console.log("Sending data to Clarify: "+base64Data[40]);
@@ -79,7 +152,7 @@ io.on('connection', function (socket) {
                                 &&concepts[i].name!="room"
                             ){
                                 socket.emit('CLARIFAI_CONCEPTS', concepts[i].name);
-                                console.log(concepts[i].name);
+                                console.log("Clarifai: "+concepts[i].name);
                             }
                         }
                     } else {
@@ -107,30 +180,6 @@ io.on('connection', function (socket) {
                 function(err) {
                     console.log(err)
                 });
-        // socket.emit('EVENT_MESSAGE', predictClarifai(data));
-
-        console.log("Would be now asking to Google: ");
-
-        /**GoogleCloud req
-         console.log("Sending data to GoogleCloud: ");//+data);
-         vision.detectLabels(data).then(
-         function(results) {
-                const labels = results[0];
-                console.log("Google response: "+results);
-                // labels.forEach((label) => console.log(label));
-                socket.emit('res', results);
-            },
-         function(err) {
-                console.error(err);
-            }
-         );*/
-        console.log("Here would go Google's response ");
-
-        /* we tell the client to execute 'new message'
-         socket.broadcast.emit('new picReq', {
-         username: socket.username,
-         message: data
-         });*/
     });
 
     /**Not really required anymore...
@@ -181,57 +230,3 @@ io.on('connection', function (socket) {
         }
     });
 });
-
-
-/*Instance of CV APIs
- * TODO add (and fix) Blippar*/
-
-/**Clarifai*/
-var Clarifai = require('clarifai');
-// initialize with your clientId and clientSecret
-var clarifai = new Clarifai.App(
-    'SieJMnA5BP4CkpL0YoXEGOEj7VKAGrH8VLZpD7zm',
-    'QQLo9NTDvhg9R32nQaC8Fb-ogAZDyzD4YPushXH6'
-);
-
-/**Clodusight*/
-var cloudsight = require ('cloudsight') ({
-    apikey: 'bq-pbxKLtdbnpnZ501zfkg'
-});
-
-function predictClarifai(imgBase64) {
-    clarifai
-        .models
-        .predict(Clarifai.GENERAL_MODEL, {base64: imgBase64})
-        .then(
-            function(resp) {
-                if (resp.status.description === 'Ok') {
-                    return resp.rawData.outputs[0].data.concepts;
-                    /**Todo get array?
-                     var data = resp.rawData.outputs[0].data.concepts;
-                     for(var i=0;i<=data.length;i++){
-                        // var tags = data[i].name;//collectTags(data);
-                        // tags = results[0].result.tag.classes;
-                        console.log(tags);
-                    }*/
-                    socket.emit('EVENT_MESSAGE', response);
-                } else {
-                    console.log('Sorry, something is wrong.\n'+resp.status.description);
-                }            },
-            function(err) {
-                console.log(err)
-            });
-}
-
-
-
-/**Google Cloud Vision API*/
-// Imports the Google Cloud client library
-const Vision = require('@google-cloud/vision');
-// Your Google Cloud Platform project ID
-const projectId = '1074207413557';
-// Instantiates a client
-const visionClient = Vision({
-    projectId: projectId
-});
-const vision = Vision();

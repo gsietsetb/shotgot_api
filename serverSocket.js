@@ -54,6 +54,8 @@ function predictClarifai(imgBase64) {
 /**Google Cloud GoogleVision API*/
 // Imports the Google Cloud client library
 const GoogleVision = require('@google-cloud/vision');
+var google = require('googleapis');
+
 // Your Google Cloud Platform project ID
 var projectId = 'shotgot-156720';//'1074207413557';
 // Instantiates a client

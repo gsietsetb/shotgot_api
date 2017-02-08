@@ -61,7 +61,7 @@ var debug = true;
  */
 function respTag(API,type,resp){
     var data;
-    console.log("This is the actual response: "+resp);
+    console.log(API+type+"This is the actual response: "+resp);
     switch(API) {
         case "Google":
             data = resp;
@@ -113,17 +113,17 @@ io.on('connection', function (socket) {
             /**TODO remove from within fs writer when possible*/
 
             /**Google req*/
-            googleVision.detectLogos(filename, function(resp){
+            googleVision.detectLogos(filename).then(function(resp){
                 const aux = resp[0];
                 onResp(new respTag('Google','Logo',aux),null);
             });
-            googleVision.detectLabels(filename, function(resp){
+            googleVision.detectLabels(filename).then(function(resp){
                 onResp(new respTag('Google','Labels',resp));
             });
-            googleVision.detectText(filename, function(resp){
+            googleVision.detectText(filename).then(function(resp){
                 onResp(new respTag('Google','OCR',resp));
             });
-            googleVision.detectProperties(filename, function(resp){
+            googleVision.detectProperties(filename).then(function(resp){
                 onResp(new respTag('Google','Colors',resp));
             });
 
@@ -132,18 +132,18 @@ io.on('connection', function (socket) {
                 image: './img.jpg',
                 locale: 'en-US'  //Todo Add TTL ?
             };
-            // cloudsight.request(imgCloudsight, true, function(err, data) {
-            //     // onResp(new respTag('Cloudsight','Text',data),err);
-            //     console.log("This si data: "+data.stringify())
-            // });
+            cloudsight.request(imgCloudsight, true, function(err, data) {
+                onResp(new respTag('Cloudsight','Text',data),err);
+                console.log("Cloudsight This si data: "+data.stringify())
+            });
         });
 
         /**Clarifai req*/
-        clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data}, function(resp, err) {
-            onResp(new respTag('Clarifai','Labels',resp),err);
+        clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data}).then(function(resp) {
+            onResp(new respTag('Clarifai','Labels',resp));
         });
-        clarifai.models.predict(Clarifai.COLOR_MODEL, {base64: base64Data}, function(resp, err) {
-            onResp(new respTag('Clarifai','Colors',resp),err);
+        clarifai.models.predict(Clarifai.COLOR_MODEL, {base64: base64Data}).then(function(resp) {
+            onResp(new respTag('Clarifai','Colors',resp));
         });
     });
 

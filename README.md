@@ -12,4 +12,6 @@ npm install --save google-auth-library
 npm install --save googleapis
 npm install --save dotenv
 npm install --save express
+npm install --save shortid
+npm install --save arr-exclude
 ```

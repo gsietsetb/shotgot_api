@@ -6,6 +6,11 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var fs = require("fs");
 var filename = './img.jpg';
+var arrExclude = require('arr-exclude');
+var shortid = require('shortid');
+//TODO create my own JSON schema
+//var jsonObj = require("./path/to/myjsonfile.json")
+
 /**APIs requires*/
 var Clarifai = require('clarifai');
 var clarifai = new Clarifai.App(
@@ -38,9 +43,60 @@ GoogleAuthFactory.getApplicationDefault(function(err, authClient) {
     }
 });
 
-// googleVision.detectProperties(filename, function(err, faces) {
-//     console.log(faces);
-// });
+var debug = true;
+
+
+/**
+ * JSON file compatible object constructor
+ * @param {int                  objectId                    Unique identifier:
+ * @param {String               API                         used API {Google, Cloudsight, Clarifai...}
+ * @param {Object                 type                        Object with keys explained below:
+ *   @param {String[]}           type[].Colors               Hex Color, Ex:
+ *   @param {String[]}           type[].Labels
+ *   @param {String}             type[].Text                'gray acer cordless mouse'
+ *   @param {String}             type[].Logo                'Acer'
+ *   @param {String}             type[].OCR                 'Desinfectador'
+ * @param {object}               data                      Either String or String[] representing the data
+ * @return {JSON} A JSON that is fulfilled with Params
+ */
+function respTag(API,type,resp){
+    var data;
+    console.log("This is the actual response: "+resp);
+    switch(API) {
+        case "Google":
+            data = resp;
+            break;
+        case "Clarifai":
+            //Todo: make it collaborative or self learning shared list
+            var clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture"];
+            if (resp.status.description === 'Ok') {
+                //TODO ToBeChanged to getOutuputData function instead,
+                // check https://sdk.clarifai.com/js/latest/Model.html#getOutputInfo
+                console.log("Within constructor. This should be an array: "+resp.getOutputInfo());
+
+                data = (type=='Labels') ?
+                    arrExclude(resp.rawData.outputs[0].data.concepts.forEach.name, clarifai_blacklist) :
+                    resp.rawData.outputs[0].data.colors.forEach.w3c.hex;
+
+                //TODO ToBe @deprecated  + if(concepts[i].value>0.7){
+                console.log("Pre filtered tags:  " + preFilterTags + "\nPost filtered tags: " + data);
+            }
+            break;
+        case "Cloudsight":
+            // if (resp.status == 'completed')
+                data = resp.name;
+            break;
+        default: //Assuming case for google
+            data = resp; //SHould not happen
+            console.log("Default swtich case, should never happpen..."+err);
+    }
+    this.respTag = {
+        id: shortid.generate(),
+        API: API,
+        type: type,
+        data: data
+    };
+}
 
 io.on('connection', function (socket) {
     console.log("User connected: ");
@@ -54,100 +110,60 @@ io.on('connection', function (socket) {
         fs.writeFile("img.jpg",  new Buffer(base64Data, "base64"), function(err) {
             if(err) console.log("FileCreationError: "+ err);
 
-            /**Google req*/
-            console.log("Sending data to Google: ");
-            googleVision.detectLogos(filename).then(
-                function(resp) {
-                    const logos = resp[0];
-                    // console.log('Logos:');
-                    // logos.forEach((logo) => console.log(logo);
-                    socket.emit('GOOGLE_LOGOS', logos);
-                    console.log("GoogleLogo: "+ logos);
-                }, function(err) {
-                    console.log("GoogleLogoError: "+ err);
-                });
-            googleVision.detectLabels(filename).then(
-                function(resp) {
-                    const labels = resp[0];
-                    socket.emit('GOOGLE_LABELS', labels);
-                    console.log("GoogleLabel: "+labels);
-                }, function(err) {
-                    console.log("GoogleLabelError: "+ err);
-                });
-            googleVision.detectText(filename).then(
-                function(resp) {
-                    const text = resp[0];
-                    socket.emit('GOOGLE_TEXT', text);
-                    console.log("GoogleText: "+text);
-                }, function(err) {
-                    console.log("GoogleTextError: "+ err);
-                });
-            /**Cloudsight req*/
-            console.log("Sending data to Cloudsight: "+base64Data[40]);
+            /**TODO remove from within fs writer when possible*/
 
+            /**Google req*/
+            googleVision.detectLogos(filename, function(resp){
+                const aux = resp[0];
+                onResp(new respTag('Google','Logo',aux),null);
+            });
+            googleVision.detectLabels(filename, function(resp){
+                onResp(new respTag('Google','Labels',resp));
+            });
+            googleVision.detectText(filename, function(resp){
+                onResp(new respTag('Google','OCR',resp));
+            });
+            googleVision.detectProperties(filename, function(resp){
+                onResp(new respTag('Google','Colors',resp));
+            });
+
+            /**Cloudsight req*/
             var imgCloudsight = {
-                image: '/img.jpg',
+                image: './img.jpg',
                 locale: 'en-US'  //Todo Add TTL ?
             };
-            cloudsight.request (imgCloudsight, true, function(err, resp) {
-                if (err) {
-                    console.log ("Cloudsight error: "+err);
-                    return;
-                }
-                if (resp.status === 'completed') {
-                    console.log(resp.name);
-                    socket.emit('CLOUDSIGHT', resp.name);
-                } else {
-                    console.log('Sorry, something is wrong.\n'+resp.status);
-                }
-            });
+            // cloudsight.request(imgCloudsight, true, function(err, data) {
+            //     // onResp(new respTag('Cloudsight','Text',data),err);
+            //     console.log("This si data: "+data.stringify())
+            // });
         });
 
         /**Clarifai req*/
-        console.log("Sending data to Clarify: "+base64Data[40]);
-        clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data}).then(
-            function(resp) {
-                //resp.getOuputInfo()
-
-                //Blacklist as array.notincase()
-                var clarifai_blacklist = [ "no person", "indoors", "one", "empty", "furniture"];
-                if (resp.status.description === 'Ok') {
-                    //TODO ToBeChanged... FOREACH
-                    var concepts = resp.rawData.outputs[0].data.concepts;
-                    for(var i=0;i<=concepts.length;i++){
-                        if(concepts[i].value>0.7){
-                            //Foreach
-                            socket.emit('CLARIFAI_CONCEPTS', concepts[i].name);
-                            console.log("Clarifai: "+concepts[i].name);
-                        }
-                    }
-                } else {
-                    console.log('Sorry, something is wrong.\n'+resp.status.description);
-                }            },
-            function(err) {
-                console.log(err)
-            });
-
-        console.log("Req color to Clarify: "+base64Data[40]);
-        clarifai.models.predict(Clarifai.COLOR_MODEL, {base64: base64Data}).then(
-            function(resp) {
-                if (resp.status.description === 'Ok') {
-                    var col = resp.rawData.outputs[0].data.colors;
-                    for(var i=0;i<=col.length;i++){
-                        // if(col[i].value>0.5)
-                        socket.emit('CLARIFAI_COLOR', col[i].w3c.hex);
-                        console.log(col[i].w3c.hex);
-                    }
-                } else {
-                    console.log('Sorry, something is wrong.\n'+resp.status.description);
-                }            },
-            function(err) {
-                console.log(err)
-            });
+        clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data}, function(resp, err) {
+            onResp(new respTag('Clarifai','Labels',resp),err);
+        });
+        clarifai.models.predict(Clarifai.COLOR_MODEL, {base64: base64Data}, function(resp, err) {
+            onResp(new respTag('Clarifai','Colors',resp),err);
+        });
     });
 
     /**TODO handle disconnections from client*/
     socket.on('disconnect', function () {
         console.log("User left...");
     });
+
+    /**
+     * Process results obtained from different APIs into a JSON file
+     * @param {JSON}         concepts    Object with keys explained below:
+     * @return {void} A JSON that is fulfilled with Params
+     */
+    function onResp(tagJSON, err){
+        if(debug){
+            console.log(tagJSON.name+"Log: "+ tagJSON.data);
+        }
+        if(err)
+            console.log(tagJSON.type+tagJSON.API+err);
+        socket.emit('METADATA', tagJSON);
+        /**Todo @fterwards: save img onto a DB*/
+    }
 });

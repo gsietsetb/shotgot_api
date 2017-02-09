@@ -5,7 +5,7 @@ var app = require('express')();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var fs = require("fs");
-var filename = './img.jpg';
+// var filename = './img.jpg';
 var arrExclude = require('arr-exclude');
 var shortid = require('shortid');
 //TODO create my own JSON schema
@@ -28,9 +28,6 @@ const GoogleVision = require('@google-cloud/vision');
 const googleVision = GoogleVision();
 
 var port = process.env.PORT || 3001;
-server.listen(port, function(){
-    console.log('Server listening at port %d', port);
-});
 
 GoogleAuthFactory.getApplicationDefault(function(err, authClient) {
     if (err) {
@@ -59,43 +56,15 @@ var debug = true;
  * @param {object}               data                      Either String or String[] representing the data
  * @return {JSON} A JSON that is fulfilled with Params
  */
-function respTag(API,type,resp){
-    var data;
-    console.log(API+type+"This is the actual response: "+resp);
-    switch(API) {
-        case "Google":
-            data = resp;
-            break;
-        case "Clarifai":
-            //Todo: make it collaborative or self learning shared list
-            var clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture"];
-            if (resp.status.description === 'Ok') {
-                //TODO ToBeChanged to getOutuputData function instead,
-                // check https://sdk.clarifai.com/js/latest/Model.html#getOutputInfo
-                console.log("Within constructor. This should be an array: "+resp.getOutputInfo());
-
-                data = (type=='Labels') ?
-                    arrExclude(resp.rawData.outputs[0].data.concepts.forEach.name, clarifai_blacklist) :
-                    resp.rawData.outputs[0].data.colors.forEach.w3c.hex;
-
-                //TODO ToBe @deprecated  + if(concepts[i].value>0.7){
-                console.log("Pre filtered tags:  " + preFilterTags + "\nPost filtered tags: " + data);
-            }
-            break;
-        case "Cloudsight":
-            // if (resp.status == 'completed')
-                data = resp.name;
-            break;
-        default: //Assuming case for google
-            data = resp; //SHould not happen
-            console.log("Default swtich case, should never happpen..."+err);
-    }
+function respTag(API,type,data){
     this.respTag = {
         id: shortid.generate(),
         API: API,
         type: type,
         data: data
     };
+    if(debug)
+        console.log(this.respTag);
 }
 
 io.on('connection', function (socket) {
@@ -104,47 +73,76 @@ io.on('connection', function (socket) {
     socket.on('PIC_REQ', function (base64Data) {
         console.log("User emitting: ");
 
+        /**Clarifai req*/
+        clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data}).then(function(resp) {
+            var labs = [];
+            resp.outputs[0].data.concepts.forEach(function(elem){
+                if(elem.value>0.8)
+                    labs.push(elem.name)
+            });
+            //Postprocess to clean unused data
+            const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture", "ofense",
+                "energy", "people", "house", "man", "family", "motion", "home", "room"];
+            var meta = new respTag('Clarifai','Labels',arrExclude(labs,clarifai_blacklist));
+            if(meta.data != null)
+                socket.emit('METADATA', meta);
+        });
+
+        clarifai.models.predict(Clarifai.COLOR_MODEL, {base64: base64Data}).then(function(resp) {
+            var cols = [];
+            resp.outputs[0].data.colors.forEach((elem) => cols.push(elem.w3c.hex));
+            var meta = new respTag('Clarifai','Colors',cols);
+            if(meta.data != null)
+                socket.emit('METADATA', meta);
+        });
+        /**Clothing Model*/
+        clarifai.models.predict("e0be3b9d6a454f0493ac3a30784001ff", {base64: base64Data}).then(function(resp) {
+            var meta = new respTag('Clarifai','Categories',unescape(resp.outputs[0].data.concepts[0].name));
+            if(meta.data != null)
+                socket.emit('METADATA', meta);
+        });
+
         /**Convert data64 into a file (needed by some APIs)*/
-        // console.log("filename created: "+ filename);
-
-        fs.writeFile("img.jpg",  new Buffer(base64Data, "base64"), function(err) {
+        var location = 'img.jpg';//+shortid.generate()+".jpg";
+        var filename = './'+location;
+        fs.writeFile(location, new Buffer(base64Data, "base64"), function(err) {
             if(err) console.log("FileCreationError: "+ err);
-
-            /**TODO remove from within fs writer when possible*/
+            console.log("filename created: "+ filename);
 
             /**Google req*/
-            googleVision.detectLogos(filename).then(function(resp){
-                const aux = resp[0];
-                onResp(new respTag('Google','Logo',aux),null);
+            googleVision.detectLogos(filename, function(err, logo){
+                var meta = new respTag('Google','Logo',logo[0]);
+                if(meta.data != null)
+                    socket.emit('METADATA', meta);
             });
-            googleVision.detectLabels(filename).then(function(resp){
-                onResp(new respTag('Google','Labels',resp));
+            googleVision.detectLabels(filename, function(err,labs){
+                var meta = new respTag('Google','Labels', labs);
+                if(meta.data != null)
+                    socket.emit('METADATA', meta);
             });
-            googleVision.detectText(filename).then(function(resp){
-                onResp(new respTag('Google','OCR',resp));
+            googleVision.detectText(filename, function(err, text){
+                var meta = new respTag('Google','OCR',text[0]);
+                if(meta.data != null)
+                    socket.emit('METADATA', meta);
             });
-            googleVision.detectProperties(filename).then(function(resp){
-                onResp(new respTag('Google','Colors',resp));
+            googleVision.detectProperties(filename, function(err, col){
+                var meta = new respTag('Google','Colors',col);
+                if(meta.data != null)
+                    socket.emit('METADATA', meta);
             });
 
             /**Cloudsight req*/
             var imgCloudsight = {
-                image: './img.jpg',
+                image: location,
                 locale: 'en-US'  //Todo Add TTL ?
             };
-            cloudsight.request(imgCloudsight, true, function(err, data) {
-                onResp(new respTag('Cloudsight','Text',data),err);
-                console.log("Cloudsight This si data: "+data.stringify())
+            cloudsight.request(imgCloudsight, true, function(err, resp) {
+                var meta = new respTag('Cloudsight','Descr',resp.name);
+                if(meta.data != null)
+                    socket.emit('METADATA', meta);
             });
         });
 
-        /**Clarifai req*/
-        clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data}).then(function(resp) {
-            onResp(new respTag('Clarifai','Labels',resp));
-        });
-        clarifai.models.predict(Clarifai.COLOR_MODEL, {base64: base64Data}).then(function(resp) {
-            onResp(new respTag('Clarifai','Colors',resp));
-        });
     });
 
     /**TODO handle disconnections from client*/
@@ -152,18 +150,8 @@ io.on('connection', function (socket) {
         console.log("User left...");
     });
 
-    /**
-     * Process results obtained from different APIs into a JSON file
-     * @param {JSON}         concepts    Object with keys explained below:
-     * @return {void} A JSON that is fulfilled with Params
-     */
-    function onResp(tagJSON, err){
-        if(debug){
-            console.log(tagJSON.name+"Log: "+ tagJSON.data);
-        }
-        if(err)
-            console.log(tagJSON.type+tagJSON.API+err);
-        socket.emit('METADATA', tagJSON);
-        /**Todo @fterwards: save img onto a DB*/
-    }
+});
+
+server.listen(port, function(){
+    console.log('Server listening at port %d', port);
 });

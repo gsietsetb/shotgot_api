@@ -1,122 +1,61 @@
-// BASE SETUP
-// =============================================================================
+'use strict';
 
-// call the packages we need
-var express    = require('express');        // call express
-var app        = express();                 // define our app using express
+require('dotenv').config();
+const app = require('express')();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const fs = require("fs");
 
-// configure app to use bodyParser()-> get the data from a POST
-var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+/**APIs requires*/
+/**CV requires*/
+const clarifai = require('./app/api/cv/clarifai.js');
+const cloudsight = require('./app/api/cv/cloudsight.js');
+const gvision = require('./app/api/cv/gvision.js');
+/**Affiliate Programs requires*/
+const amazon = require('./app/api/affiliate/amazon.js');
 
-// conf mongoose for MongoDB Database
-var mongoose   = require('mongoose');
-// mongoose.connect('mongodb://node:node@novus.modulusmongo.net:27017/Iganiq8o'); // connect to our database
-// mongoose.connect('mongodb://gsierra:<pass>@jello.modulusmongo.net:27017/Y3sotoqe'); // connect to our database
-mongoose.connect('mongodb://localhost/collection');
+let metadata = {};
+// const debug = true;
+const port = process.env.PORT || 3001;
+const location = 'public/uploads/img.jpg';//+shortid.generate()+".jpg";
+const filename = './' + location;
 
-// Conf BEAR
-var Bear     = require('./app/models/bear');
+io.on('connection', function (socket) {
+    console.log("Meta connected: ");
+    // when the client emits 'PIC_REQ', this listens and executes
+    socket.on('PIC_REQ', function (base64Data) {
+        console.log("Meta emitting: ");
 
-var port = process.env.PORT || 8080;        // set our port
+        /**Clarifai req*/
+        metadata.push(clarifai.getLabels(base64Data, socket));
+        metadata.push(clarifai.getColors(base64Data, socket));
+        metadata.push(clarifai.getClothing(base64Data, socket));
 
-// ROUTES FOR OUR API
-// =============================================================================
-var router = express.Router();              // get an instance of the express Router
+        /**Convert data64 into a file (needed by some APIs)*/
 
-// middleware to use for all requests
-router.use(function(req, res, next) {
-    // do logging
-    console.log('Something is happening.');
-    next(); // make sure we go to the next routes and don't stop here
-});
+        fs.writeFile(location, new Buffer(base64Data, "base64"), function (err) {
+            if (err) console.log("FileCreationError: " + err);
+            console.log("filename created: " + filename);
 
-// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get('/', function(req, res) {
-    res.json({ message: 'hooray! welcome to our api!' });
-});
+            /**Google req*/
+            metadata.push(gvision.getLogos(filename, socket));
+            metadata.push(gvision.getLabels(filename, socket));
+            metadata.push(gvision.getColors(filename, socket));
+            metadata.push(gvision.getText(filename, socket));
 
-// more routes for our API will happen here
-
-// routes ending in /bears
-// ----------------------------------------------------
-router.route('/bears')
-
-// create a bear (accessed at POST http://localhost:8080/bears)
-    .post(function(req, res) {
-
-        var bear = new Bear();		// create a new instance of the Bear model
-        bear.name = req.body.name;  // set the bears name (comes from the request)
-
-        bear.save(function(err) {
-            if (err)
-                res.send(err);
-
-            res.json({ message: 'Bear created!' });
+            /**Cloudsight req*/
+            metadata.push(cloudsight.getDescr(location, socket));
         });
 
-    })
-
-    // get all the bears (accessed at GET http://localhost:8080/api/bears)
-    .get(function(req, res) {
-        Bear.find(function(err, bears) {
-            if (err)
-                res.send(err);
-
-            res.json(bears);
-        });
     });
 
-// on routes that end in /bears/:bear_id
-// ----------------------------------------------------
-router.route('/bears/:bear_id')
-
-// get the bear with that id
-    .get(function(req, res) {
-        Bear.findById(req.params.bear_id, function(err, bear) {
-            if (err)
-                res.send(err);
-            res.json(bear);
-        });
-    })
-
-    // update the bear with this id
-    .put(function(req, res) {
-        Bear.findById(req.params.bear_id, function(err, bear) {
-
-            if (err)
-                res.send(err);
-
-            bear.name = req.body.name;
-            bear.save(function(err) {
-                if (err)
-                    res.send(err);
-
-                res.json({ message: 'Bear updated!' });
-            });
-
-        });
-    })
-
-    // delete the bear with this id
-    .delete(function(req, res) {
-        Bear.remove({
-            _id: req.params.bear_id
-        }, function(err, bear) {
-            if (err)
-                res.send(err);
-
-            res.json({ message: 'Successfully deleted' });
-        });
+    /**TODO handle disconnections from client*/
+    socket.on('disconnect', function () {
+        console.log("Meta left...");
     });
 
+});
 
-// REGISTER OUR ROUTES -------------------------------
-// all of our routes will be prefixed with /api
-app.use('/api', router);
-
-// START THE SERVER
-// =============================================================================
-app.listen(port);
-console.log('Magic happens on port ' + port);
+server.listen(port, function () {
+    console.log('Server listening at port %d', port);
+});

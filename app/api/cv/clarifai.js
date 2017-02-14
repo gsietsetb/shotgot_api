@@ -11,8 +11,7 @@ const clarifai = new Clarifai.App(
     process.env.CLARIFAI_SECRET
 );
 
-const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture", "ofense",
-    "energy", "people", "house", "man", "family", "motion", "home", "room"];
+const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture", "ofense", "energy", "people", "house", "man", "family", "motion", "home", "room"];
 
 module.exports.getLabels = (base64Data, socket, startTime) => {
     clarifai.models.predict(Clarifai.GENERAL_MODEL, base64Data/*{base64: base64Data}*/).then(function (resp) {

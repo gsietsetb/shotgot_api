@@ -17,7 +17,7 @@ var mongoose   = require('mongoose');
 mongoose.connect('mongodb://localhost/collection');
 
 // Conf BEAR
-var Bear = require('./../app/models/bear');
+var Bear = require('./bear');
 
 var port = process.env.PORT || 8080;        // set our port
 

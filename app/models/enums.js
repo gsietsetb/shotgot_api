@@ -9,12 +9,12 @@ var exports = module.exports = {};
  * @enum {string}
  */
 exports.VisionAPI = {
-    API_GOOGLE: 'Google',
-    API_CLARIFAI: 'Clarifai',
-    API_CLOUDSIGHT: 'Cloudsight',
-    API_IMAGGA: 'Cloudsight',
-    API_BLIPPAR: 'BLIPPAR',
-    API_AMAZON: 'AMAZON',
+    API_GOOGLE: 'GGL',
+    API_CLARIFAI: 'CLRFI',
+    API_CLOUDSIGHT: 'CLDSHGT',
+    API_IMAGGA: 'IMGG',
+    API_BLIPPAR: 'BLPPR',
+    API_AMAZON: 'AMZN',
     API_IBM: 'IBM'
 };
 

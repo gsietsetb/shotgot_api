@@ -8,13 +8,14 @@ const shortid = require('shortid');
 // const timer = require('./../../server');
 
 
-var Meta = function (type, api, data, delay) {
+var Meta = function (api, type, data, delay) {
     this.data = data;//this.sanitize(data);
     this.type = type;//this.sanitize(type);
     this.api = api; //this.sanitize(api);
     this.id = shortid.generate();//this.sanitize(shortid.generate());
-    this.delay = delay;
-    console.log(this.delay + "ms [" + this.api + this.type + "] with: " + JSON.stringify(this.data));
+    if (delay != undefined)
+        this.delay = delay;
+    console.log("[" + this.api + " | " + this.type + "\t{" + this.delay + " ms} with: " + JSON.stringify(this.data));
 };
 
 Meta.prototype.data = {};

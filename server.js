@@ -26,7 +26,7 @@ io.on('connection', function (socket) {
     console.log("User connected: ");
     // when the client emits 'PIC_REQ', this listens and executes
     socket.on('PIC_REQ', function (base64Data) {
-        var startTime = Date.now();
+        const startTime = Date.now();
         console.log("User emitting: ");
 
         /**Convert data64 into a file saved (replaced) in a public reposiory*/

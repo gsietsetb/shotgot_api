@@ -24,5 +24,12 @@ npm install --save dotenv
 npm install --save express
 npm install --save shortid
 npm install --save arr-exclude
+npm install --save express-jsonschema
 ```
 
+Alternatively, you can simply run:
+```
+npm install
+```
+
+which looks for the required dependencies in `package.json`

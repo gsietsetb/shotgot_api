@@ -257,3 +257,48 @@ if(err)
 // server.listen(port, function(){
 //     console.log('Server listening at port %d', port);
 // });
+
+User
+emitting:
+    NaNms
+lasted[]
+filename
+created: .
+/public/u
+ploads / img.jpg in https
+://shotgot.com/images/img.jpg
+undefinedms [LabelsClarifai]
+with:
+"Pumps"
+undefinedms [LogoGoogle]
+with:
+undefined
+552
+ms [LabelsClarifai]
+with:
+["chair", "wood", "light", "interior design", "seat", "museum", "window", "building", "offense", "step", "business"]
+585
+ms [Labelsundefined]
+with:
+["toilet", "room", "home"]
+undefinedms [ColorsGoogle]
+with:
+["a98f5f", "967a4d", "aa916d", "907754", "ceb99a", "695133", "8e683a", "73582f", "48341a", "6e4e30"]
+690
+ms [ColorsClarifai]
+with:
+["#696969", "#000000"]
+undefinedms [OCRGoogle]
+with:
+undefined
+undefinedms [LabelsGoogle]
+with:
+["room", "floor", "furniture", "vehicle", "wood"]
+2872
+ms [Labelsundefined]
+with:
+["#a98e63", "#866a44"]
+1487055727404
+ms [DescrCloudsight]
+with:
+"white wooden desk"

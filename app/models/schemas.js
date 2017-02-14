@@ -3,8 +3,9 @@
  */
 
 //TODO https://github.com/mercmobily/SimpleSchema
-const Schema = require('simpleschema');
-const enums = require('./meta');
+const enums = require('./enums');
+var validate = require('express-jsonschema').validate;
+var bodyParser = require('body-parser');
 
 /**
  * JSON file compatible object constructor
@@ -19,13 +20,13 @@ const enums = require('./meta');
  * @param {object}               data                      Either String or String[] representing the data
  * @return {JSON} A JSON that is fulfilled with Params
  */
-var schemas = new Schema({
+var schemas = {
     meta: {
-        id: {type: 'string', default: enums.API_GOOGLE},
+        id: {type: 'string', default: enums.CV_API.API_GOOGLE},
         api: null,
         type: null,
         data: null,
     }
-});
+};
 
 module.exports = schemas;

@@ -2,14 +2,17 @@
  * Created by gsierra on 10/02/17.
  */
 
+var exports = module.exports = {};
+
 /**
  * Supported CV APIs.
  * @enum {string}
  */
-const VisionAPI = {
+exports.VisionAPI = {
     API_GOOGLE: 'Google',
     API_CLARIFAI: 'Clarifai',
     API_CLOUDSIGHT: 'Cloudsight',
+    API_IMAGGA: 'Cloudsight',
     API_BLIPPAR: 'BLIPPAR',
     API_AMAZON: 'AMAZON',
     API_IBM: 'IBM'
@@ -19,7 +22,7 @@ const VisionAPI = {
  * Supported Affiliate Program APIs.
  * @enum {string}
  */
-const AffiliateAPI = {
+exports.CV_API = {
     API_GOOGLE: 'Google',
     API_CLARIFAI: 'Clarifai',
     API_CLOUDSIGHT: 'Cloudsight',
@@ -29,7 +32,7 @@ const AffiliateAPI = {
  * Supported types for Metadata.
  * @enum {string}
  */
-const MetaTypes = {
+exports.MetaTypes = {
     TYPE_LABELS: 'Labels',
     TYPE_COLORS: 'Colors',
     TYPE_OCR: 'OCR',
@@ -41,7 +44,7 @@ const MetaTypes = {
  * Supported keys for Metadata.
  * @enum {string}
  */
-const API_Affiliate = {
+exports.API_Affiliate = {
     KEY_ID: 'id',
     KEY_API: 'API',
     KEY_TYPE: 'type',

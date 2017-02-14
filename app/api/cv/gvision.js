@@ -7,7 +7,8 @@ const GoogleAuth = require('google-auth-library');
 const GoogleAuthFactory = new GoogleAuth();
 const GoogleVision = require('@google-cloud/vision');
 const googleVision = GoogleVision();
-
+const Meta = require('./../../models/meta');
+const enums = require('./../../models/enums');
 
 GoogleAuthFactory.getApplicationDefault(function (err, authClient) {
     if (err) {
@@ -21,41 +22,44 @@ GoogleAuthFactory.getApplicationDefault(function (err, authClient) {
 });
 
 /**Tag Getters*/
-function getLogos(filename, socket) {
+module.exports.getLogos = (filename, socket, startTime) => {
     googleVision.detectLogos(filename, function (err, logo) {
         if (logo != undefined) {
-            const meta = new respTag('Google', 'Logo', logo[0]);
-            socket.emit('METADATA', meta);
+            const timeRx = Date.now();
+            const meta = new Meta(enums.CV_API.API_GOOGLE, enums.MetaTypes.TYPE_LOGO, logo[0]);
+            socket.emit('METADATA', meta, timeRx - startTime);
             return meta;
         }
     });
-}
+};
 
-function getLabels(filename, socket) {
+module.exports.getLabels = (filename, socket, startTime) => {
     googleVision.detectLabels(filename, function (err, labs) {
         if (labs != undefined) {
-            const meta = new respTag('Google', 'Labels', labs);
-            socket.emit('METADATA', meta);
+            const timeRx = Date.now();
+            const meta = new Meta(enums.CV_API.API_GOOGLE, enums.MetaTypes.TYPE_LABELS, labs);
+            socket.emit('METADATA', meta, timeRx - startTime);
             return meta;
         }
     });
-}
-function getText(filename, socket) {
+};
+module.exports.getText = (filename, socket, startTime) => {
     googleVision.detectText(filename, function (err, text) {
         if (text != undefined) {
-            const meta = new respTag('Google', 'OCR', text[0]);
-            socket.emit('METADATA', meta);
+            const timeRx = Date.now();
+            const meta = new Meta(enums.CV_API.API_GOOGLE, enums.MetaTypes.TYPE_OCR, text[0]);
+            socket.emit('METADATA', meta, timeRx - startTime);
             return meta;
         }
     });
-}
-
-function getColors(filename, socket) {
+};
+module.exports.getColors = (filename, socket, startTime) => {
     googleVision.detectProperties(filename, function (err, col) {
         if (col != undefined) {
-            const meta = new respTag('Google', 'Colors', col);
-            socket.emit('METADATA', meta);
+            const timeRx = Date.now();
+            const meta = new Meta(enums.CV_API.API_GOOGLE, enums.MetaTypes.TYPE_COLORS, col.colors);
+            socket.emit('METADATA', meta, timeRx - startTime);
             return meta;
         }
     });
-}
+};

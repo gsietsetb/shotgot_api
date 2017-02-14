@@ -8,50 +8,53 @@ const fs = require("fs");
 
 /**APIs requires*/
 /**CV requires*/
-const clarifai = require('./app/api/cv/clarifai.js');
-const cloudsight = require('./app/api/cv/cloudsight.js');
-const gvision = require('./app/api/cv/gvision.js');
+const clarifai = require('./app/api/cv/clarifai');
+const cloudsight = require('./app/api/cv/cloudsight');
+const gvision = require('./app/api/cv/gvision');
+const imagga = require('./app/api/cv/imagga');
 /**Affiliate Programs requires*/
-const amazon = require('./app/api/affiliate/amazon.js');
+const amazon = require('./app/api/affiliate/amazon');
+const aliexpress = require('./app/api/affiliate/aliexpress');
 
-let metadata = {};
+let metadata = [];
 // const debug = true;
 const port = process.env.PORT || 3001;
 const location = 'public/uploads/img.jpg';//+shortid.generate()+".jpg";
 const filename = './' + location;
-
+const publicFileName = 'https://shotgot.com/images/img.jpg';
 io.on('connection', function (socket) {
-    console.log("Meta connected: ");
+    console.log("User connected: ");
     // when the client emits 'PIC_REQ', this listens and executes
     socket.on('PIC_REQ', function (base64Data) {
-        console.log("Meta emitting: ");
+        var startTime = Date.now();
+        console.log("User emitting: ");
 
-        /**Clarifai req*/
-        metadata.push(clarifai.getLabels(base64Data, socket));
-        metadata.push(clarifai.getColors(base64Data, socket));
-        metadata.push(clarifai.getClothing(base64Data, socket));
-
-        /**Convert data64 into a file (needed by some APIs)*/
-
+        /**Convert data64 into a file saved (replaced) in a public reposiory*/
         fs.writeFile(location, new Buffer(base64Data, "base64"), function (err) {
             if (err) console.log("FileCreationError: " + err);
-            console.log("filename created: " + filename);
-
-            /**Google req*/
-            metadata.push(gvision.getLogos(filename, socket));
-            metadata.push(gvision.getLabels(filename, socket));
-            metadata.push(gvision.getColors(filename, socket));
-            metadata.push(gvision.getText(filename, socket));
-
+            console.log("filename created: " + filename + " in " + publicFileName);
             /**Cloudsight req*/
-            metadata.push(cloudsight.getDescr(location, socket));
+            metadata.push(cloudsight.getDescr(publicFileName, socket, startTime));
+            /**Google req*/
+            metadata.push(gvision.getLogos(filename, socket, startTime));
+            metadata.push(gvision.getLabels(filename, socket, startTime));
+            metadata.push(gvision.getColors(filename, socket, startTime));
+            metadata.push(gvision.getText(filename, socket, startTime));
+            /**Imagga req*/
+            metadata.push(imagga.getTags(publicFileName, socket, startTime));
+            metadata.push(imagga.getColors(publicFileName, socket, startTime));
+            /**Clarifai req*/
+            metadata.push(clarifai.getLabels(publicFileName, socket, startTime));
+            metadata.push(clarifai.getColors(publicFileName, socket, startTime));
+            metadata.push(clarifai.getClothing(publicFileName, socket, startTime));
         });
 
+        console.log(Date.now - startTime + "ms lasted" + JSON.stringify(metadata));
     });
 
     /**TODO handle disconnections from client*/
     socket.on('disconnect', function () {
-        console.log("Meta left...");
+        console.log("User left...");
     });
 
 });

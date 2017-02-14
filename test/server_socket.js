@@ -78,7 +78,7 @@ io.on('connection', function (socket) {
             var labs = [];
             resp.outputs[0].data.concepts.forEach(function (elem) {
                 if (elem.value > 0.8)
-                    labs.push(elem.name)
+                    labs.push(elem.name);
             });
             //Postprocess to clean unused data
             const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture", "ofense",

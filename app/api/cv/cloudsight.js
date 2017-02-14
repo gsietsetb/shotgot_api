@@ -7,17 +7,15 @@ const enums = require('./../../models/enums');
 
 module.exports.getDescr = (location, socket, startTime) => {
     const imgCloudsight = {
-        // image: location,
-        remote_image_url: location,
+        remote_image_url: location,        // image: location,
         locale: 'en-US'  //Todo Add TTL ?
     };
     cloudsight.request(imgCloudsight, true, function (err, resp) {
         if (resp != undefined) {
-            const timeRx = Date.now();
-            var meta = new Meta(enums.CV_API.API_CLOUDSIGHT,
-                enums.MetaTypes.TYPE_DESCR,
-                resp.name, timeRx);
-            socket.emit('METADATA', meta, timeRx - startTime);
+            const meta = new Meta(enums.VisionAPI.API_CLOUDSIGHT,
+                enums.TagType.TYPE_DESCR,
+                resp.name, Date.now() - startTime);
+            socket.emit('METADATA', meta);
             return meta;
         }
     });

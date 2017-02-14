@@ -9,12 +9,13 @@ var exports = module.exports = {};
  * @enum {string}
  */
 exports.VisionAPI = {
-    API_GOOGLE: 'GGL',
-    API_CLARIFAI: 'CLRFI',
-    API_CLOUDSIGHT: 'CLDSHGT',
+    API_GOOGLE: 'GOGL',
+    API_CLARIFAI: 'CLRF',
+    API_CLOUDSIGHT: 'CSHT',
     API_IMAGGA: 'IMGG',
-    API_BLIPPAR: 'BLPPR',
+    API_BLIPPAR: 'BLPR',
     API_AMAZON: 'AMZN',
+    API_MICROSOFT: 'MSFT',
     API_IBM: 'IBM'
 };
 
@@ -22,7 +23,7 @@ exports.VisionAPI = {
  * Supported Affiliate Program APIs.
  * @enum {string}
  */
-exports.CV_API = {
+exports.AffiliateAPI = {
     API_GOOGLE: 'Google',
     API_CLARIFAI: 'Clarifai',
     API_CLOUDSIGHT: 'Cloudsight',
@@ -32,21 +33,10 @@ exports.CV_API = {
  * Supported types for Metadata.
  * @enum {string}
  */
-exports.MetaTypes = {
-    TYPE_LABELS: 'Labels',
-    TYPE_COLORS: 'Colors',
-    TYPE_OCR: 'OCR',
-    TYPE_LOGO: 'Logo',
-    TYPE_DESCR: 'Descr',
-};
-
-/**
- * Supported keys for Metadata.
- * @enum {string}
- */
-exports.API_Affiliate = {
-    KEY_ID: 'id',
-    KEY_API: 'API',
-    KEY_TYPE: 'type',
-    KEY_DATA: 'data',
+exports.TagType = {
+    TYPE_TAGS: 'TAGs',
+    TYPE_COLORS: 'CLRs',
+    TYPE_OCR: 'TXTs',
+    TYPE_LOGO: 'LGO',
+    TYPE_DESCR: 'TXT',
 };

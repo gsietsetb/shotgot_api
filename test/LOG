@@ -1,3 +1,37 @@
+NaNms lasted: [null,null,null,null,null,null,null,null,null,null]
+[CLRFI | CLRs	{633 ms} with: ["#a9a9a9","#696969","#708090","#cd853f"]
+[CLRFI | TAGs	{undefined ms} with: "Wallet"
+[GOGL | CLRs	{undefined ms} with: ["407d97","375b6f","373538","93bc99","6ba0b6","677f3e","34657a","4e768d","555353","347ca1"]
+[GOGL | LGO	{undefined ms} with: undefined
+no person CLRF: 0.99070036
+business CLRF: 0.9781914
+indoors CLRF: 0.94777846
+technology CLRF: 0.9450108
+money CLRF: 0.9428812
+still life CLRF: 0.91286767
+finance CLRF: 0.89781654
+travel CLRF: 0.89389354
+internet CLRF: 0.89220154
+computer CLRF: 0.8920337
+medicine CLRF: 0.8905963
+paper CLRF: 0.888034
+commerce CLRF: 0.8856567
+security CLRF: 0.8836211
+industry CLRF: 0.8808422
+education CLRF: 0.8675971
+pill CLRF: 0.86525965
+telephone CLRF: 0.8580314
+electronics CLRF: 0.8469773
+banking CLRF: 0.8430685
+[CLRFI | TAGs	{902 ms} with: ["business","technology","money","still life","finance","travel","internet","computer","medicine","paper","commerce","security","industry","education","pill","telephone","electronics","banking"]
+[IMGG | TAGs	{1041 ms} with: ["toiletry"]
+[GOGL | TXTs	{undefined ms} with: "DE\nINVERSION\nJUNTos HA\nEMPRENDEDORA\nLUNA CIUDAD Aires ciudad\nBuenos\nManzon\n"
+[GOGL | TAGs	{undefined ms} with: ["blue","product","skin","eye"]
+[IMGG | TAGs	{2569 ms} with: ["#477d95","#434143"]
+[CSGHT | TXT	{1487092674787 ms} with: "ronda de inversion book"
+
+==================================================================================
+
 Server listening at port 3001
 User connected:
 User emitting:
@@ -59,3 +93,4 @@ with:
 ms [DescrCloudsight]
 with:
 "white wooden desk"
+

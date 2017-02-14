@@ -15,7 +15,7 @@ var Meta = function (api, type, data, delay) {
     this.id = shortid.generate();//this.sanitize(shortid.generate());
     if (delay != undefined)
         this.delay = delay;
-    console.log("[" + this.api + " | " + this.type + "\t{" + this.delay + " ms} with: " + JSON.stringify(this.data));
+    console.log("[" + this.api + " | " + this.type + "\t{" + this.delay + " ms} \t" + JSON.stringify(this.data));
 };
 
 Meta.prototype.data = {};

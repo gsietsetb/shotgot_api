@@ -11,20 +11,25 @@ const clarifai = new Clarifai.App(
     process.env.CLARIFAI_SECRET
 );
 
-const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture", "ofense", "energy", "people", "house", "man", "family", "motion", "home", "room"];
+const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture",
+    "ofense", "energy", "people", "house", "man", "family", "motion", "home",
+    "room", "business", "technology", "money", "still life", "finance", "travel",
+    "internet", "computer", "medicine", "commerce", "security", "industry",
+    "education", "pill", "telephone", "electronics", "banking"];
 
 module.exports.getLabels = (base64Data, socket, startTime) => {
     clarifai.models.predict(Clarifai.GENERAL_MODEL, base64Data/*{base64: base64Data}*/).then(function (resp) {
-        const timeRx = Date.now();
-        var labs = [];
+        let labs = [];
         resp.outputs[0].data.concepts.forEach(function (elem) {
-            if (elem.value > 0.8)
-                labs.push(elem.name)
+            // console.log(elem.name+" CLRF: "+elem.value);
+            if (elem.value > 0.9)
+                labs.push(elem.name);
         });
         //Postprocess to clean unused data
-        var meta = new Meta(enums.CV_API.API_CLARIFAI,
-            enums.MetaTypes.TYPE_LABELS,
-            arrExclude(labs, clarifai_blacklist), timeRx - startTime);
+        const meta = new Meta(enums.VisionAPI.API_CLARIFAI,
+            enums.TagType.TYPE_TAGS,
+            arrExclude(labs, clarifai_blacklist),
+            Date.now() - startTime);
         socket.emit('METADATA', meta);
         return meta;
     });
@@ -32,11 +37,11 @@ module.exports.getLabels = (base64Data, socket, startTime) => {
 
 module.exports.getColors = (base64Data, socket, startTime) => {
     clarifai.models.predict(Clarifai.COLOR_MODEL, base64Data/*{base64: base64Data}*/).then(function (resp) {
-        const timeRx = Date.now();
-        var cols = [];
+        let cols = [];
         resp.outputs[0].data.colors.forEach((elem) => cols.push(elem.w3c.hex));
-        var meta = new Meta(enums.CV_API.API_CLARIFAI,
-            enums.MetaTypes.TYPE_COLORS, cols, timeRx - startTime);
+        const meta = new Meta(enums.VisionAPI.API_CLARIFAI,
+            enums.TagType.TYPE_COLORS, cols,
+            Date.now() - startTime);
         socket.emit('METADATA', meta);
         return meta;
     });
@@ -45,11 +50,11 @@ module.exports.getColors = (base64Data, socket, startTime) => {
 /**Clothing Model*/
 module.exports.getClothing = (base64Data, socket, startTime) => {
     clarifai.models.predict("e0be3b9d6a454f0493ac3a30784001ff", base64Data/*{base64: base64Data}*/).then(function (resp) {
-        const timeRx = Date.now();
-        var meta = new Meta(enums.CV_API.API_CLARIFAI,
-            enums.MetaTypes.TYPE_LABELS,
-            unescape(resp.outputs[0].data.concepts[0].name));
-        socket.emit('METADATA', meta, timeRx - startTime);
+        const meta = new Meta(enums.VisionAPI.API_CLARIFAI,
+            enums.TagType.TYPE_TAGS,
+            unescape(resp.outputs[0].data.concepts[0].name),
+            Date.now() - startTime);
+        socket.emit('METADATA', meta);
         return meta;
     });
 };

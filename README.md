@@ -25,6 +25,7 @@ npm install --save express
 npm install --save shortid
 npm install --save arr-exclude
 npm install --save express-jsonschema
+npm install --save cognitive-services
 ```
 
 Alternatively, you can simply run:

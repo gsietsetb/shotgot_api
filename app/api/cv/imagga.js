@@ -6,7 +6,7 @@
 // Imagga = require('imagga');
 // imagga = new Imagga(process.env.IMAGGA_KEY, process.env.IMAGGA_SECRET, '<YOUR-IMAGGA-ENDPOINT>');
 
-var request = require('request'),
+const request = require('request'),
     apiKey = process.env.IMAGGA_KEY,
     apiSecret = process.env.IMAGGA_SECRET;
 
@@ -24,8 +24,8 @@ module.exports.getTags = (url, socket, startTime) => {
                     if (elem.confidence > 20)
                         labs.push(elem.tag)
                 });
-                var meta = new Meta(enums.CV_API.API_IMAGGA,
-                    enums.MetaTypes.TYPE_LABELS, labs, timeRx - startTime);
+                const meta = new Meta(enums.VisionAPI.API_IMAGGA,
+                    enums.TagType.TYPE_TAGS, labs, timeRx - startTime);
                 socket.emit('METADATA', meta);
                 return meta;
             }
@@ -35,7 +35,7 @@ module.exports.getTags = (url, socket, startTime) => {
 module.exports.getColors = (url, socket, startTime) => {
     request.get('https://api.imagga.com/v1/colors?url=' + encodeURIComponent(url),
         function (error, response, body) {
-            var resp = JSON.parse(body);
+            const resp = JSON.parse(body);
             if (resp != undefined) {
                 const timeRx = Date.now();
                 var cols = [];
@@ -43,8 +43,8 @@ module.exports.getColors = (url, socket, startTime) => {
                     if (elem.percentage > 30)
                         cols.push(elem.html_code)
                 });
-                var meta = new Meta(enums.CV_API.API_IMAGGA,
-                    enums.MetaTypes.TYPE_LABELS, cols, timeRx - startTime);
+                const meta = new Meta(enums.VisionAPI.API_IMAGGA,
+                    enums.TagType.TYPE_TAGS, cols, timeRx - startTime);
                 socket.emit('METADATA', meta);
                 return meta;
             }

@@ -10,6 +10,7 @@ const fs = require("fs");
 /**CV requires*/
 const clarifai = require('./app/api/cv/clarifai');
 const cloudsight = require('./app/api/cv/cloudsight');
+const msft = require('./app/api/cv/msftCogn');
 const gvision = require('./app/api/cv/gvision');
 const imagga = require('./app/api/cv/imagga');
 /**Affiliate Programs requires*/
@@ -31,25 +32,39 @@ io.on('connection', function (socket) {
 
         /**Convert data64 into a file saved (replaced) in a public reposiory*/
         fs.writeFile(location, new Buffer(base64Data, "base64"), function (err) {
+
             if (err) console.log("FileCreationError: " + err);
             console.log("filename created: " + filename + " in " + publicFileName);
+
             /**Cloudsight req*/
             metadata.push(cloudsight.getDescr(publicFileName, socket, startTime));
+
+            /**Microsoft Cognitive req*/
+            const msftTagArray = msft.getDescr(publicFileName, socket, startTime);
+            if (msftTagArray != undefined)
+                msftTagArray.forEach(function (elem) {
+                    metadata.push(elem);
+                });
+
             /**Google req*/
             metadata.push(gvision.getLogos(filename, socket, startTime));
             metadata.push(gvision.getLabels(filename, socket, startTime));
             metadata.push(gvision.getColors(filename, socket, startTime));
             metadata.push(gvision.getText(filename, socket, startTime));
+
             /**Imagga req*/
             metadata.push(imagga.getTags(publicFileName, socket, startTime));
             metadata.push(imagga.getColors(publicFileName, socket, startTime));
+
             /**Clarifai req*/
             metadata.push(clarifai.getLabels(publicFileName, socket, startTime));
             metadata.push(clarifai.getColors(publicFileName, socket, startTime));
             metadata.push(clarifai.getClothing(publicFileName, socket, startTime));
+
+            /**Print overall results*/
+            console.log(Date.now - startTime + "ms lasted: " + JSON.stringify(metadata));
         });
 
-        console.log(Date.now - startTime + "ms lasted" + JSON.stringify(metadata));
     });
 
     /**TODO handle disconnections from client*/

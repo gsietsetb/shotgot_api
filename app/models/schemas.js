@@ -20,13 +20,11 @@ var bodyParser = require('body-parser');
  * @param {object}               data                      Either String or String[] representing the data
  * @return {JSON} A JSON that is fulfilled with Params
  */
-var schemas = {
+module.exports.schemas = {
     meta: {
-        id: {type: 'string', default: enums.CV_API.API_GOOGLE},
-        api: null,
-        type: null,
+        id: {type: 'string'},
+        api: {type: enums.VisionAPI},
+        type: {type: enums.TagType},
         data: null,
     }
 };
-
-module.exports = schemas;

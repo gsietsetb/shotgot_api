@@ -13,7 +13,7 @@ var Meta = function (api, type, data, delay) {
     this.cv_api = api;//this.sanitize(cv_api);
     this.type = type;//this.sanitize(type);
     this.data = data;//this.sanitize(data);
-    // console.log("[" + this.cv_api + " | " + this.type + "\t{" + delay + " ms} \t" + JSON.stringify(this.data));
+    console.log("[" + this.cv_api + " | " + this.type + "]\t{" + delay + " ms} \t" + JSON.stringify(this.data));
 };
 
 Meta.prototype.data = {};

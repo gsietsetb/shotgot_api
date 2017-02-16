@@ -4,7 +4,7 @@
 //     API_KEY: process.env.MSFT_SECRET
 // });
 
-const rp = require('request-promise');
+var rp = require('request-promise');
 const Meta = require('./../../models/meta');
 const enums = require('./../../models/enums');
 // const body = {"url":location};

@@ -21,15 +21,16 @@ const aliexpress = require('./app/api/affiliate/aliexpress');
 let metadata = [];
 // const debug = true;
 const port = process.env.PORT || 3001;
-
-const publicFileName = 'https://shotgot.com/images/img.jpg';
+//TODO add shortid.generate as a variable and use it to populate to each meta
+const location = 'public/uploads/' + shortid.generate() + '.jpg';
+const filename = './' + location;  //Required by Google
+const publicFileName = 'https://shotgot.com/' + location;
 io.on('connection', function (socket) {
     console.log("User connected: ");
     // when the client emits 'PIC_REQ', this listens and executes
     socket.on('PIC_REQ', function (base64Data) {
         const startTime = Date.now();
-        const location = 'public/uploads/' + shortid.generate() + '.jpg';
-        const filename = './' + location;
+
         console.log("User emitting: ");
 
         /**Convert data64 into a file saved (replaced) in a public reposiory*/
@@ -64,7 +65,6 @@ io.on('connection', function (socket) {
             console.log(clarifai.getClothing(publicFileName, socket, startTime));
 
         });
-
     });
 
     /**TODO handle disconnections from client*/

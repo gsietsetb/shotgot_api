@@ -9,13 +9,11 @@ const shortid = require('shortid');
 
 
 var Meta = function (api, type, data, delay) {
-    this.data = data;//this.sanitize(data);
-    this.type = type;//this.sanitize(type);
-    this.api = api; //this.sanitize(api);
     this.id = shortid.generate();//this.sanitize(shortid.generate());
-    if (delay != undefined)
-        this.delay = delay;
-    console.log("[" + this.api + " | " + this.type + "\t{" + this.delay + " ms} \t" + JSON.stringify(this.data));
+    this.cv_api = api;//this.sanitize(cv_api);
+    this.type = type;//this.sanitize(type);
+    this.data = data;//this.sanitize(data);
+    // console.log("[" + this.cv_api + " | " + this.type + "\t{" + delay + " ms} \t" + JSON.stringify(this.data));
 };
 
 Meta.prototype.data = {};

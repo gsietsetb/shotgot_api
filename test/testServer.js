@@ -150,7 +150,7 @@ if(err)
 // /**
 //  * JSON file compatible object constructor
 //  * @param {int                  objectId                    Unique identifier:
-//  * @param {String               api                         used api {Google, Cloudsight, Clarifai...}
+//  * @param {String               cv_api                         used cv_api {Google, Cloudsight, Clarifai...}
 //  * @param {Object                 type                        Object with keys explained below:
 //  *   @param {String[]}           type[].Colors               Hex Color, Ex:
 //  *   @param {String[]}           type[].Labels
@@ -160,10 +160,10 @@ if(err)
 //  * @param {object}               data                      Either String or String[] representing the data
 //  * @return {JSON} A JSON that is fulfilled with Params
 //  */
-// function respTag(api,type,resp){
+// function respTag(cv_api,type,resp){
 //     var data;
-//     console.log(api+type+" resp: "+JSON.stringify(resp));
-//     switch(api) {
+//     console.log(cv_api+type+" resp: "+JSON.stringify(resp));
+//     switch(cv_api) {
 //         case "Google":
 //             data = resp;
 //             break;
@@ -193,7 +193,7 @@ if(err)
 //     }
 //     this.respTag = {
 //         id: shortid.generate(),
-//         api: api,
+//         cv_api: cv_api,
 //         type: type,
 //         data: data
 //     };
@@ -249,7 +249,7 @@ if(err)
 //         console.log(tagJSON.name+" Log: "+ tagJSON.data);
 //     }
 //     if(err)
-//         console.log("Err: "+tagJSON.type+tagJSON.api+err);
+//         console.log("Err: "+tagJSON.type+tagJSON.cv_api+err);
 //     // socket.emit('METADATA', tagJSON);
 //     /**Todo @fterwards: save img onto a DB*/
 // }

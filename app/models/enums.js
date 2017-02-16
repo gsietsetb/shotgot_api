@@ -24,9 +24,9 @@ exports.VisionAPI = {
  * @enum {string}
  */
 exports.AffiliateAPI = {
-    API_GOOGLE: 'Google',
-    API_CLARIFAI: 'Clarifai',
-    API_CLOUDSIGHT: 'Cloudsight',
+    API_AMAZON: 'AMZN',
+    API_ALIEXPRESS: 'AXPS',
+    API_EBAY: 'EBAY',
 };
 
 /**
@@ -36,7 +36,7 @@ exports.AffiliateAPI = {
 exports.TagType = {
     TYPE_TAGS: 'TAGs',
     TYPE_COLORS: 'CLRs',
-    TYPE_OCR: 'TXTs',
+    TYPE_OCR: 'OCRs',
     TYPE_LOGO: 'LGO',
     TYPE_DESCR: 'TXT',
 };

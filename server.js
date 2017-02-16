@@ -1,6 +1,7 @@
 'use strict';
 
 require('dotenv').config();
+const shortid = require('shortid');
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
@@ -20,14 +21,15 @@ const aliexpress = require('./app/api/affiliate/aliexpress');
 let metadata = [];
 // const debug = true;
 const port = process.env.PORT || 3001;
-const location = 'public/uploads/img.jpg';//+shortid.generate()+".jpg";
-const filename = './' + location;
+
 const publicFileName = 'https://shotgot.com/images/img.jpg';
 io.on('connection', function (socket) {
     console.log("User connected: ");
     // when the client emits 'PIC_REQ', this listens and executes
     socket.on('PIC_REQ', function (base64Data) {
         const startTime = Date.now();
+        const location = 'public/uploads/' + shortid.generate() + '.jpg';
+        const filename = './' + location;
         console.log("User emitting: ");
 
         /**Convert data64 into a file saved (replaced) in a public reposiory*/
@@ -37,7 +39,7 @@ io.on('connection', function (socket) {
             console.log("filename created: " + filename + " in " + publicFileName);
 
             /**Cloudsight req*/
-            metadata.push(cloudsight.getDescr(publicFileName, socket, startTime));
+            console.log(cloudsight.getDescr(publicFileName, socket, startTime));
 
             /**Microsoft Cognitive req*/
             const msftTagArray = msft.getDescr(publicFileName, socket, startTime);
@@ -47,28 +49,28 @@ io.on('connection', function (socket) {
                 });
 
             /**Google req*/
-            metadata.push(gvision.getLogos(filename, socket, startTime));
-            metadata.push(gvision.getLabels(filename, socket, startTime));
-            metadata.push(gvision.getColors(filename, socket, startTime));
-            metadata.push(gvision.getText(filename, socket, startTime));
+            console.log(gvision.getLogos(filename, socket, startTime));
+            console.log(gvision.getLabels(filename, socket, startTime));
+            console.log(gvision.getColors(filename, socket, startTime));
+            console.log(gvision.getText(filename, socket, startTime));
 
             /**Imagga req*/
-            metadata.push(imagga.getTags(publicFileName, socket, startTime));
-            metadata.push(imagga.getColors(publicFileName, socket, startTime));
+            console.log(imagga.getTags(publicFileName, socket, startTime));
+            console.log(imagga.getColors(publicFileName, socket, startTime));
 
             /**Clarifai req*/
-            metadata.push(clarifai.getLabels(publicFileName, socket, startTime));
-            metadata.push(clarifai.getColors(publicFileName, socket, startTime));
-            metadata.push(clarifai.getClothing(publicFileName, socket, startTime));
+            console.log(clarifai.getLabels(publicFileName, socket, startTime));
+            console.log(clarifai.getColors(publicFileName, socket, startTime));
+            console.log(clarifai.getClothing(publicFileName, socket, startTime));
 
-            /**Print overall results*/
-            console.log(Date.now - startTime + "ms lasted: " + JSON.stringify(metadata));
         });
 
     });
 
     /**TODO handle disconnections from client*/
     socket.on('disconnect', function () {
+        /**Print overall results*/
+        console.log(JSON.stringify(metadata));
         console.log("User left...");
     });
 

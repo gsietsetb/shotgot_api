@@ -21,7 +21,7 @@ var Bear = require('./bear');
 
 var port = process.env.PORT || 8080;        // set our port
 
-// ROUTES FOR OUR api
+// ROUTES FOR OUR cv_api
 // =============================================================================
 var router = express.Router();              // get an instance of the express Router
 
@@ -34,10 +34,10 @@ router.use(function(req, res, next) {
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/api)
 router.get('/', function(req, res) {
-    res.json({ message: 'hooray! welcome to our api!' });
+    res.json({message: 'hooray! welcome to our cv_api!'});
 });
 
-// more routes for our api will happen here
+// more routes for our cv_api will happen here
 
 // routes ending in /bears
 // ----------------------------------------------------
@@ -113,8 +113,8 @@ router.route('/bears/:bear_id')
 
 
 // REGISTER OUR ROUTES -------------------------------
-// all of our routes will be prefixed with /api
-app.use('/api', router);
+// all of our routes will be prefixed with /cv_api
+app.use('/cv_api', router);
 
 // START THE SERVER
 // =============================================================================

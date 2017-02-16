@@ -14,9 +14,8 @@ const Meta = require('./../../models/meta');
 const enums = require('./../../models/enums');
 
 module.exports.getTags = (url, socket, startTime) => {
-    request.get('https://api.imagga.com/v1/tagging?url=' + encodeURIComponent(url),
-        function (error, response, body) {
-            var resp = JSON.parse(body);
+    request.get('https://cv_api.imagga.com/v1/tagging?url=' + encodeURIComponent(url),
+        function (error, response, resp) {
             if (resp != undefined) {
                 const timeRx = Date.now();
                 var labs = [];
@@ -33,9 +32,8 @@ module.exports.getTags = (url, socket, startTime) => {
 };
 
 module.exports.getColors = (url, socket, startTime) => {
-    request.get('https://api.imagga.com/v1/colors?url=' + encodeURIComponent(url),
-        function (error, response, body) {
-            const resp = JSON.parse(body);
+    request.get('https://cv_api.imagga.com/v1/colors?url=' + encodeURIComponent(url),
+        function (error, response, resp) {
             if (resp != undefined) {
                 const timeRx = Date.now();
                 var cols = [];

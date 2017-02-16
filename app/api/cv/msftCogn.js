@@ -4,14 +4,12 @@
 //     API_KEY: process.env.MSFT_SECRET
 // });
 
-var rp = require('request-promise');
-
+const rp = require('request-promise');
 const Meta = require('./../../models/meta');
 const enums = require('./../../models/enums');
 // const body = {"url":location};
 // const parameters = {"visualFeatures": "Tags, Color, Description, Categories"};
-const request = 'https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?' +
-    'visualFeatures=Color,Tags,Description&language=en';
+const request = 'https://westus.cv_api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Color,Tags,Description&language=en';
 
 module.exports.getDescr = (location, socket, startTime) => {
     const options = {

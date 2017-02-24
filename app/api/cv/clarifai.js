@@ -51,7 +51,7 @@ module.exports.getColors = (base64Data, socket, startTime) => {
 module.exports.getClothing = (base64Data, socket, startTime) => {
     clarifai.models.predict("e0be3b9d6a454f0493ac3a30784001ff", base64Data/*{base64: base64Data}*/).then(function (resp) {
         const meta = new Meta(enums.VisionAPI.API_CLARIFAI,
-            enums.TagType.TYPE_TAGS,
+            enums.TagType.TYPE_TAG,
             unescape(resp.outputs[0].data.concepts[0].name),
             Date.now() - startTime);
         socket.emit('METADATA', meta);

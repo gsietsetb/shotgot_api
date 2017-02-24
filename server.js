@@ -18,13 +18,13 @@ const imagga = require('./app/api/cv/imagga');
 const amazon = require('./app/api/affiliate/amazon');
 const aliexpress = require('./app/api/affiliate/aliexpress');
 
-let metadata = [];
 // const debug = true;
 const port = process.env.PORT || 3001;
 //TODO add shortid.generate as a variable and use it to populate to each meta
 const location = 'public/uploads/' + shortid.generate() + '.jpg';
 const filename = './' + location;  //Required by Google
 const publicFileName = 'https://shotgot.com/' + location;
+var metadata = [];
 io.on('connection', function (socket) {
     console.log("User connected: ");
     // when the client emits 'PIC_REQ', this listens and executes
@@ -40,29 +40,32 @@ io.on('connection', function (socket) {
             console.log("filename created: " + filename + " in " + publicFileName);
 
             /**Cloudsight req*/
-            console.log(cloudsight.getDescr(publicFileName, socket, startTime));
+            // console.log(cloudsight.getDescr(publicFileName, socket, startTime));
 
             /**Microsoft Cognitive req*/
-            const msftTagArray = msft.getDescr(publicFileName, socket, startTime);
-            if (msftTagArray != undefined)
-                msftTagArray.forEach(function (elem) {
-                    metadata.push(elem);
-                });
+            // var msftTagArray = msft.getDescr(publicFileName, socket, startTime);
+            // if (msftTagArray != undefined)
+            //     msftTagArray.forEach(function (elem) {
+            //         metadata.push(elem);
+            //     });
 
             /**Google req*/
-            console.log(gvision.getLogos(filename, socket, startTime));
-            console.log(gvision.getLabels(filename, socket, startTime));
-            console.log(gvision.getColors(filename, socket, startTime));
-            console.log(gvision.getText(filename, socket, startTime));
+            var auxgVlog = gvision.getLogos(filename, socket, startTime);
+            metadata.push(auxgVlog);
+            var gVtag = gvision.getLabels(filename, socket, startTime);
+            metadata.push(gVtag);
+            console.log("Going to add: " + gvision.getLabels(filename, socket, startTime));
+            metadata.push(gvision.getColors(filename, socket, startTime));
+            metadata.push(gvision.getText(filename, socket, startTime));
 
             /**Imagga req*/
-            console.log(imagga.getTags(publicFileName, socket, startTime));
-            console.log(imagga.getColors(publicFileName, socket, startTime));
+            metadata.push(imagga.getTags(publicFileName, socket, startTime));
+            metadata.push(imagga.getColors(publicFileName, socket, startTime));
 
             /**Clarifai req*/
-            console.log(clarifai.getLabels(publicFileName, socket, startTime));
-            console.log(clarifai.getColors(publicFileName, socket, startTime));
-            console.log(clarifai.getClothing(publicFileName, socket, startTime));
+            metadata.push(clarifai.getLabels(publicFileName, socket, startTime));
+            metadata.push(clarifai.getColors(publicFileName, socket, startTime));
+            metadata.push(clarifai.getClothing(publicFileName, socket, startTime));
 
         });
     });

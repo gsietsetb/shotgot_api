@@ -34,9 +34,12 @@ exports.AffiliateAPI = {
  * @enum {string}
  */
 exports.TagType = {
-    TYPE_TAGS: 'TAGs',
+    //Array
     TYPE_COLORS: 'CLRs',
-    TYPE_OCR: 'OCRs',
+    TYPE_TAGS: 'TAGs',
+    //String
+    TYPE_TAG: 'TAG',
+    TYPE_OCR: 'OCR',
     TYPE_LOGO: 'LGO',
     TYPE_DESCR: 'TXT',
 };

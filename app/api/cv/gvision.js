@@ -2,13 +2,13 @@
  * Created by gsierra on 10/02/17.
  */
 
-const Google = require('googleapis');
-const GoogleAuth = require('google-auth-library');
-const GoogleAuthFactory = new GoogleAuth();
-const GoogleVision = require('@google-cloud/vision');
-const googleVision = GoogleVision();
-const Meta = require('./../../models/meta');
-const enums = require('./../../models/enums');
+let Google = require('googleapis');
+let GoogleAuth = require('google-auth-library');
+let GoogleAuthFactory = new GoogleAuth();
+let GoogleVision = require('@google-cloud/vision');
+let googleVision = GoogleVision();
+let Meta = require('./../../models/meta');
+let enums = require('./../../models/enums');
 
 GoogleAuthFactory.getApplicationDefault(function (err, authClient) {
     if (err) {
@@ -16,58 +16,72 @@ GoogleAuthFactory.getApplicationDefault(function (err, authClient) {
         return;
     }
     if (authClient.createScopedRequired && authClient.createScopedRequired()) {
-        var scopes = ['https://www.googleapis.com/auth/cloud-platform'];
+        let scopes = ['https://www.googleapis.com/auth/cloud-platform'];
         authClient = authClient.createScoped(scopes);
     }
 });
 
-/**Tag Getters*/
-module.exports.getLogos = (filename, socket, startTime) => {
-    googleVision.detectLogos(filename, function (err, logo) {
-        if (logo != undefined) {
-            const meta = new Meta(enums.VisionAPI.API_GOOGLE,
-                enums.TagType.TYPE_LOGO,
-                logo[0],
-                Date.now() - startTime);
-            socket.emit('METADATA', meta);
-            return meta;
-        }
-    });
-};
+/**
+ * class representing a collection of Google API cross-requests
+ * @class
+ */
+class GoogleReq {
+    getLogos(filename) {
+        return new Promise((resolve, reject) => {
+            googleVision.detectLogos(filename, function (err, logo) {
+                if (err)
+                    reject(err);
+                else if (logo != undefined) {
+                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                        enums.TagType.TYPE_LOGO,
+                        logo[0]));
+                }
+            });
+        });
+    };
 
-module.exports.getLabels = (filename, socket, startTime) => {
-    googleVision.detectLabels(filename, function (err, labs) {
-        if (labs != undefined) {
-            const meta = new Meta(enums.VisionAPI.API_GOOGLE,
-                enums.TagType.TYPE_TAGS,
-                labs,
-                Date.now() - startTime);
-            socket.emit('METADATA', meta);
-            return meta;
-        }
-    });
-};
-module.exports.getText = (filename, socket, startTime) => {
-    googleVision.detectText(filename, function (err, text) {
-        if (text != undefined) {
-            const meta = new Meta(enums.VisionAPI.API_GOOGLE,
-                enums.TagType.TYPE_OCR,
-                text[0],
-                Date.now() - startTime);
-            socket.emit('METADATA', meta);
-            return meta;
-        }
-    });
-};
-module.exports.getColors = (filename, socket, startTime) => {
-    googleVision.detectProperties(filename, function (err, col) {
-        if (col != undefined) {
-            const meta = new Meta(enums.VisionAPI.API_GOOGLE,
-                enums.TagType.TYPE_COLORS,
-                col.colors,
-                Date.now() - startTime);
-            socket.emit('METADATA', meta);
-            return meta;
-        }
-    });
-};
+    getLabels(filename) {
+        return new Promise((resolve, reject) => {
+            googleVision.detectLabels(filename, function (err, labs) {
+                if (err)
+                    reject(err);
+                else if (labs != undefined) {
+                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                        enums.TagType.TYPE_TAGS,
+                        labs));
+                }
+            });
+        });
+
+    };
+
+    getText(filename) {
+        return new Promise((resolve, reject) => {
+            googleVision.detectText(filename, function (err, text) {
+                if (err)
+                    reject(err);
+                else if (text != undefined) {
+                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                        enums.TagType.TYPE_OCR,
+                        text[0]));
+                }
+            });
+        });
+    };
+
+    getColors(filename, socket, startTime) {
+        return new Promise((resolve, reject) => {
+            googleVision.detectProperties(filename, function (err, col) {
+                if (err)
+                    reject(err);
+                else if (col != undefined) {
+                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                        enums.TagType.TYPE_COLORS,
+                        col.colors));
+                }
+            });
+        });
+    };
+}
+
+module.exports = GoogleReq;

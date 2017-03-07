@@ -9,7 +9,7 @@ const shortid = require('shortid');
 
 
 var Meta = function (api, type, data, delay) {
-    this.id = shortid.generate();//this.sanitize(shortid.generate());
+    // this.id = shortid.generate();//this.sanitize(shortid.generate());
     this.cv_api = api;//this.sanitize(cv_api);
     this.type = type;//this.sanitize(type);
     this.data = data;//this.sanitize(data);
@@ -17,6 +17,10 @@ var Meta = function (api, type, data, delay) {
 };
 
 Meta.prototype.data = {};
+
+Meta.prototype.setReqId = function (val) {
+    this.id = val;
+};
 
 Meta.prototype.changeName = function (name) {
     this.data.name = name;

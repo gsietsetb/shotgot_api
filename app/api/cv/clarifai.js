@@ -2,11 +2,12 @@
  * Created by gsierra on 10/02/17.
  */
 
-const arrExclude = require('arr-exclude');
-const Meta = require('./../../models/meta');
-const enums = require('./../../models/enums');
-const Clarifai = require('clarifai');
-const clarifai = new Clarifai.App(
+let arrExclude = require('arr-exclude');
+let {Promise} = require('es6-promise');
+let Meta = require('./../../models/meta');
+let enums = require('./../../models/enums');
+let Clarifai = require('clarifai');
+let clarifai = new Clarifai.App(
     process.env.CLARIFAI_ID,
     process.env.CLARIFAI_SECRET
 );
@@ -17,46 +18,75 @@ const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture",
     "internet", "computer", "medicine", "commerce", "security", "industry",
     "education", "pill", "telephone", "electronics", "banking"];
 
-module.exports.getLabels = (base64Data, socket, startTime) => {
-    clarifai.models.predict(Clarifai.GENERAL_MODEL, base64Data/*{base64: base64Data}*/).then(function (resp) {
-        let labs = [];
-        resp.outputs[0].data.concepts.forEach(function (elem) {
-            // console.log(elem.name+" CLRF: "+elem.value);
-            if (elem.value > 0.9)
-                labs.push(elem.name);
+/**
+ * class representing a collection of Clarifai API cross-requests
+ * @class
+ */
+class ClarifaiReq {
+
+    /**
+     * Calls predict for Labels in Clarify
+     * @param {string}            URL       Absolute URI of the img
+     * @param {Socket}            SocketIo  SocketIo object
+     * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+     */
+    getLabels(imgUrl) {
+        return new Promise((resolve, reject) => {
+            /**TODO Test if faster with b64 data directly*/
+            // clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data})
+            clarifai.models.predict(Clarifai.GENERAL_MODEL, imgUrl)
+                .then(function (resp) {
+                    let labs = [];
+                    resp.outputs[0].data.concepts.forEach(function (elem) {
+                        // console.log(elem.name+" CLRF: "+elem.value);
+                        if (elem.value > 0.9)
+                            labs.push(elem.name);
+                    });
+                    //Includes postprocess to clean unused data
+                    resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
+                        enums.TagType.TYPE_TAGS,
+                        arrExclude(labs, clarifai_blacklist)));
+                })
+                .catch(reject);
         });
-        //Postprocess to clean unused data
-        const meta = new Meta(enums.VisionAPI.API_CLARIFAI,
-            enums.TagType.TYPE_TAGS,
-            arrExclude(labs, clarifai_blacklist),
-            Date.now() - startTime);
-        socket.emit('METADATA', meta);
-        return meta;
-    });
+    };
+
+    /**
+     * Calls predict for Colors in Clarify
+     * @param {string}            URL       Absolute URI of the img
+     * @param {Socket}            SocketIo  SocketIo object
+     * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+     */
+    getColors(imgUrl) {
+        return new Promise((resolve, reject) => {
+            clarifai.models.predict(Clarifai.COLOR_MODEL, imgUrl)
+                .then(function (resp) {
+                    let cols = [];
+                    resp.outputs[0].data.colors.forEach((elem) => cols.push(elem.w3c.hex));
+                    resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
+                        enums.TagType.TYPE_COLORS, cols));
+                })
+                .catch(reject);
+        });
+    };
+
+    /**
+     * Calls predict for Clothing Model in Clarify.
+     * Not Really Accurated
+     * @param {string}            URL       Absolute URI of the img
+     * @param {Socket}            SocketIo  SocketIo object
+     * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+     */
+    getClothing(imgUrl) {
+        clarifai.models.predict("e0be3b9d6a454f0493ac3a30784001ff", imgUrl)
+            .then(function (resp) {
+                resolve(meta = new Meta(enums.VisionAPI.API_CLARIFAI,
+                    enums.TagType.TYPE_TAG,
+                    decodeURI((resp.outputs[0].data.concepts[0].name))))
+            })
+            .catch(reject);
+    };
 };
 
-module.exports.getColors = (base64Data, socket, startTime) => {
-    clarifai.models.predict(Clarifai.COLOR_MODEL, base64Data/*{base64: base64Data}*/).then(function (resp) {
-        let cols = [];
-        resp.outputs[0].data.colors.forEach((elem) => cols.push(elem.w3c.hex));
-        const meta = new Meta(enums.VisionAPI.API_CLARIFAI,
-            enums.TagType.TYPE_COLORS, cols,
-            Date.now() - startTime);
-        socket.emit('METADATA', meta);
-        return meta;
-    });
-};
-
-/**Clothing Model*/
-module.exports.getClothing = (base64Data, socket, startTime) => {
-    clarifai.models.predict("e0be3b9d6a454f0493ac3a30784001ff", base64Data/*{base64: base64Data}*/).then(function (resp) {
-        const meta = new Meta(enums.VisionAPI.API_CLARIFAI,
-            enums.TagType.TYPE_TAG,
-            unescape(resp.outputs[0].data.concepts[0].name),
-            Date.now() - startTime);
-        socket.emit('METADATA', meta);
-        return meta;
-    });
-};
-
+module.exports = ClarifaiReq;
 

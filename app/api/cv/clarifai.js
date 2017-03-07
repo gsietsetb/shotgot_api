@@ -19,74 +19,67 @@ const clarifai_blacklist = ["no person", "indoors", "one", "empty", "furniture",
     "education", "pill", "telephone", "electronics", "banking"];
 
 /**
- * class representing a collection of Clarifai API cross-requests
- * @class
+ * Calls predict for Labels in Clarify
+ * @param {string}            URL       Absolute URI of the img
+ * @param {Socket}            SocketIo  SocketIo object
+ * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
  */
-class ClarifaiReq {
+module.exports.getLabels = (imgUrl) => {
+    return new Promise((resolve, reject) => {
+        /**TODO Test if faster with b64 data directly*/
+        // clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data})
+        clarifai.models.predict(Clarifai.GENERAL_MODEL, imgUrl)
+            .then(function (resp) {
+                let labs = [];
+                resp.outputs[0].data.concepts.forEach(function (elem) {
+                    // console.log(elem.name+" CLRF: "+elem.value);
+                    if (elem.value > 0.9)
+                        labs.push(elem.name);
+                });
+                //Includes postprocess to clean unused data
+                resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
+                    enums.TagType.TYPE_TAGS,
+                    arrExclude(labs, clarifai_blacklist)));
+            })
+            .catch(reject);
+    });
+};
 
-    /**
-     * Calls predict for Labels in Clarify
-     * @param {string}            URL       Absolute URI of the img
-     * @param {Socket}            SocketIo  SocketIo object
-     * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
-     */
-    getLabels(imgUrl) {
-        return new Promise((resolve, reject) => {
-            /**TODO Test if faster with b64 data directly*/
-            // clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data})
-            clarifai.models.predict(Clarifai.GENERAL_MODEL, imgUrl)
-                .then(function (resp) {
-                    let labs = [];
-                    resp.outputs[0].data.concepts.forEach(function (elem) {
-                        // console.log(elem.name+" CLRF: "+elem.value);
-                        if (elem.value > 0.9)
-                            labs.push(elem.name);
-                    });
-                    //Includes postprocess to clean unused data
-                    resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
-                        enums.TagType.TYPE_TAGS,
-                        arrExclude(labs, clarifai_blacklist)));
-                })
-                .catch(reject);
-        });
-    };
+/**
+ * Calls predict for Colors in Clarify
+ * @param {string}            URL       Absolute URI of the img
+ * @param {Socket}            SocketIo  SocketIo object
+ * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+ */
+module.exports.getColors = (imgUrl) => {
+    return new Promise((resolve, reject) => {
+        clarifai.models.predict(Clarifai.COLOR_MODEL, imgUrl)
+            .then(function (resp) {
+                let cols = [];
+                resp.outputs[0].data.colors.forEach((elem) => cols.push(elem.w3c.hex));
+                resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
+                    enums.TagType.TYPE_COLORS, cols));
+            })
+            .catch(reject);
+    });
+};
 
-    /**
-     * Calls predict for Colors in Clarify
-     * @param {string}            URL       Absolute URI of the img
-     * @param {Socket}            SocketIo  SocketIo object
-     * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
-     */
-    getColors(imgUrl) {
-        return new Promise((resolve, reject) => {
-            clarifai.models.predict(Clarifai.COLOR_MODEL, imgUrl)
-                .then(function (resp) {
-                    let cols = [];
-                    resp.outputs[0].data.colors.forEach((elem) => cols.push(elem.w3c.hex));
-                    resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
-                        enums.TagType.TYPE_COLORS, cols));
-                })
-                .catch(reject);
-        });
-    };
-
-    /**
-     * Calls predict for Clothing Model in Clarify.
-     * Not Really Accurated
-     * @param {string}            URL       Absolute URI of the img
-     * @param {Socket}            SocketIo  SocketIo object
-     * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
-     */
-    getClothing(imgUrl) {
+/**
+ * Calls predict for Clothing Model in Clarify.
+ * Not Really Accurated
+ * @param {string}            URL       Absolute URI of the img
+ * @param {Socket}            SocketIo  SocketIo object
+ * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+ */
+module.exports.getClothing = (imgUrl) => {
+    return new Promise((resolve, reject) => {
         clarifai.models.predict("e0be3b9d6a454f0493ac3a30784001ff", imgUrl)
             .then(function (resp) {
                 resolve(meta = new Meta(enums.VisionAPI.API_CLARIFAI,
                     enums.TagType.TYPE_TAG,
-                    decodeURI((resp.outputs[0].data.concepts[0].name))))
+                    decodeURI((resp.outputs[0].data.concepts[0].name))));
             })
             .catch(reject);
-    };
+    });
 };
-
-module.exports = ClarifaiReq;
 

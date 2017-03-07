@@ -4,12 +4,13 @@
 //     API_KEY: process.env.MSFT_SECRET
 // });
 
-let rp = require('request-promise');
+let req = require('request-promise');
 let Meta = require('./../../models/meta');
 let enums = require('./../../models/enums');
 // const body = {"url":location};
 // const parameters = '{"visualFeatures": "Tags, Color, Description, Categories"}';
-const request = 'https://westus.cv_api.cognitive.microsoft.com/vision/v1.0/analyze?' +
+let a = 'https://westus.api.cognitive.microsoft.com/vision/v1.0/describe[?maxCandidates]'
+const request = 'https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?' +
     'visualFeatures=Color,Tags,Description,Categories' +//parameters+//
     '&language=en';
 
@@ -29,8 +30,9 @@ module.exports.getDescr = (location) => {
             },
             json: true // Automatically stringifies the body to JSON
         };
-        rp(options)
+        req.get(options)
             .then((resp) => {
+                console.log("MSGT: " + resp);
                 if (resp != undefined) {
                     let metaArray = [];
                     /**Color*/
@@ -65,9 +67,9 @@ module.exports.getDescr = (location) => {
                     /**Resolves the whole array of meta tags*/
                     resolve(metaArray);
                 }
-            })
-            .catch((err) => {                // POST failed...
-                reject(err)
             });
+        // .catch((err) => {                // POST failed...
+        //     reject(err)
+        // });
     });
 };

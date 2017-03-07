@@ -4,7 +4,7 @@ const cloudsight = require('cloudsight')({
 const Meta = require('./../../models/meta');
 const enums = require('./../../models/enums');
 
-module.exports.getDescr = (location, socket, startTime) => {
+module.exports.getDescr = (location) => {
     return new Promise((resolve, reject) => {
         const imgCloudsight = {
             remote_image_url: location,        // image: location,

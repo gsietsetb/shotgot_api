@@ -16,42 +16,40 @@ const enums = require('./../../models/enums');
  * class representing a collection of Imagga API cross-requests
  * @class
  */
-class ImaggaReq {
-    getTags(url) {
-        request.get('https://cv_api.imagga.com/v1/tagging?url='
+module.exports.getTags = (url) => {
+    return new Promise((resolve, reject) => {
+        request.get('https://api.imagga.com/v1/tagging?url='
             + encodeURIComponent(url),
             function (error, status, resp) {
-                if (resp != undefined) {
-                    let labs = [];
-                    resp.results[0].tags.forEach(function (elem) {
+                let labs = [];
+                let aux = JSON.parse(resp);
+                if (aux != null && aux != undefined) {
+                    aux.results[0].tags.forEach(function (elem) {
                         if (elem.confidence > 20)
-                            labs.push(elem.tag)
+                            labs.push(elem.tag);
                     });
-                    const meta = new Meta(enums.VisionAPI.API_IMAGGA,
-                        enums.TagType.TYPE_TAGS, labs);
-                    return meta;
-                } else reject(status);
+                    resolve(new Meta(enums.VisionAPI.API_IMAGGA,
+                        enums.TagType.TYPE_TAGS, labs));
+                }
             }).auth(apiKey, apiSecret, true);  //Send_inmediately set to true
+    });
+};
 
-    };
-
-    getColors(url) {
-        return new Promise((resolve, reject) => {
-            request.get('https://cv_api.imagga.com/v1/colors?url='
-                + encodeURIComponent(url),
-                function (error, status, body) {
-                    if (body != undefined) {
-                        let cols = [];
-                        body.results[0].info.foreground_colors.forEach(function (elem) {
-                            if (elem.percentage > 30)
-                                cols.push(elem.html_code)
-                        });
-                        resolve(new Meta(enums.VisionAPI.API_IMAGGA,
-                            enums.TagType.TYPE_TAGS, cols));
-                    } else reject(status);
+module.exports.getColors = (url) => {
+    return new Promise((resolve, reject) => {
+        request.get('https://api.imagga.com/v1/colors?url='
+            + encodeURIComponent(url),
+            function (error, status, resp) {
+                let cols = [];
+                let aux = JSON.parse(resp);
+                if (aux != null && aux != undefined) {
+                    aux.results[0].info.foreground_colors.forEach(function (elem) {
+                        if (elem.percentage > 30)
+                            cols.push(elem.html_code);
+                    });
+                    resolve(new Meta(enums.VisionAPI.API_IMAGGA,
+                        enums.TagType.TYPE_COLORS, cols));
+                }
                 }).auth(apiKey, apiSecret, true);
-        });
-    };
-}
-
-module.exports = ImaggaReq;
+    });
+};

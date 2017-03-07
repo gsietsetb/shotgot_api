@@ -25,63 +25,59 @@ GoogleAuthFactory.getApplicationDefault(function (err, authClient) {
  * class representing a collection of Google API cross-requests
  * @class
  */
-class GoogleReq {
-    getLogos(filename) {
-        return new Promise((resolve, reject) => {
-            googleVision.detectLogos(filename, function (err, logo) {
-                if (err)
-                    reject(err);
-                else if (logo != undefined) {
-                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
-                        enums.TagType.TYPE_LOGO,
-                        logo[0]));
-                }
-            });
+module.exports.getLogos = (filename) => {
+    return new Promise((resolve, reject) => {
+        googleVision.detectLogos(filename, function (err, logo) {
+            if (err)
+                reject(err);
+            else if (logo != undefined) {
+                resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                    enums.TagType.TYPE_LOGO,
+                    logo[0]));
+            }
         });
-    };
+    });
+};
 
-    getLabels(filename) {
-        return new Promise((resolve, reject) => {
-            googleVision.detectLabels(filename, function (err, labs) {
-                if (err)
-                    reject(err);
-                else if (labs != undefined) {
-                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
-                        enums.TagType.TYPE_TAGS,
-                        labs));
-                }
-            });
+module.exports.getLabels = (filename) => {
+    return new Promise((resolve, reject) => {
+        googleVision.detectLabels(filename, function (err, labs) {
+            if (err)
+                reject(err);
+            else if (labs != undefined) {
+                resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                    enums.TagType.TYPE_TAGS,
+                    labs));
+            }
         });
+    });
 
-    };
+};
 
-    getText(filename) {
-        return new Promise((resolve, reject) => {
-            googleVision.detectText(filename, function (err, text) {
-                if (err)
-                    reject(err);
-                else if (text != undefined) {
-                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
-                        enums.TagType.TYPE_OCR,
-                        text[0]));
-                }
-            });
+module.exports.getText = (filename) => {
+    return new Promise((resolve, reject) => {
+        googleVision.detectText(filename, function (err, text) {
+            if (err)
+                reject(err);
+            else if (text != undefined) {
+                resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                    enums.TagType.TYPE_OCR,
+                    text[0]));
+            }
         });
-    };
+    });
+};
 
-    getColors(filename, socket, startTime) {
-        return new Promise((resolve, reject) => {
-            googleVision.detectProperties(filename, function (err, col) {
-                if (err)
-                    reject(err);
-                else if (col != undefined) {
-                    resolve(new Meta(enums.VisionAPI.API_GOOGLE,
-                        enums.TagType.TYPE_COLORS,
-                        col.colors));
-                }
-            });
+module.exports.getColors = (filename) => {
+    return new Promise((resolve, reject) => {
+        googleVision.detectProperties(filename, function (err, col) {
+            if (err)
+                reject(err);
+            else if (col != undefined) {
+                resolve(new Meta(enums.VisionAPI.API_GOOGLE,
+                    enums.TagType.TYPE_COLORS,
+                    col.colors));
+            }
         });
-    };
-}
-
-module.exports = GoogleReq;
+    });
+};

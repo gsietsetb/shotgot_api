@@ -2,132 +2,149 @@
  * Created by gsierra on 28/02/17.
  */
 
+"use strict";
+
+/**Helpers & Utils*/
 let fs = require("fs");
 let shortid = require('shortid');
+let Promise = require("bluebird");
 
 /**CV APIs requires*/
 let clarifai = require('./../api/cv/clarifai');
 let msft = require('./../api/cv/msftCogn');
 let gvision = require('./../api/cv/gvision');
 let imagga = require('./../api/cv/imagga');
-let Promise = require("bluebird");
 // let cloudsight = require('./../api/cv/cloudsight');
 
-// class picToTag {
-    /**
-     * Wrapper for each of the CV API's
-     * @param {string}            URL       Absolute URI of the img
-     * @param {Socket}            SocketIo  SocketIo object
-     * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
-     */
-    module.exports.imgToTag = (socket, b64data) => {
-        return new Promise((resolve, reject) => {
-            /**TODO implement my own reject*/
-            let mMetaArray = [];
-            /**Asserts correct file creaetion*/
-            FileURI.safeAndGetImgUrl(b64data)
-                .then(function (fileLoc) {
-                    // /**Clarifai req*/
-                    // clarifai.getLabels(fileLoc.publicURI)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id))
-                    // .catch((err)=> console.log("DAMN! REJ ERR GOT: "+mMetaArray.toString()+err));
-                    // clarifai.getColors(fileLoc.publicURI)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id))
-                    //     .catch((err)=> console.log("DAMN! REJ ERR GOT: "+mMetaArray.toString()+err));
-                    // clarifai.getClothing(fileLoc.publicURI)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id))
-                    //     .catch((err)=> console.log("DAMN! REJ ERR GOT: "+mMetaArray.toString()+err));
-                    //
-                    // /**Google req
-                    //  * note the use of 'localURIexplicit'
-                    //  * rather than 'publicURI'*/
-                    // gvision.getLogos(fileLoc.localURIexplicit)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id))
-                    //     .catch((err)=> console.log("DAMN! REJ ERR GOT: "+mMetaArray.toString()+err));
-                    // gvision.getLabels(fileLoc.localURIexplicit)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id))
-                    //     .catch((err)=> console.log("DAMN! REJ ERR GOT: "+mMetaArray.toString()+err));
-                    // gvision.getColors(fileLoc.localURIexplicit)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id))
-                    //     .catch((err)=> console.log("DAMN! REJ ERR GOT: "+mMetaArray.toString()+err));
-                    // gvision.getText(fileLoc.localURIexplicit)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id))
-                    //     .catch((err)=> console.log("DAMN! REJ ERR GOT: "+mMetaArray.toString()+err));
-                    //
-                    // /**Imagga req*/
-                    // imagga.getTags(fileLoc.publicURI)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id));
-                    // imagga.getColors(fileLoc.publicURI)
-                    //     .then((metadata) => onResp(metadata, socket, mMetaArray, fileLoc.id));
+/**Global Variables*/
+let sessionSocket;
+let mMetaArray = [];
 
-                    /**Microsoft Cognitive req*/
-                    let msftTagArray = msft.getDescr(fileLoc.publicURI);
-                    if (msftTagArray != undefined)
-                        console.log("wrap error: " + JSON.parse(msftTagArray));
-                        msftTagArray.forEach(function (elem) {
-                            onResp(elem, socket, mMetaArray, fileLoc.id);
-                        });
+/**
+ * Wrapper for each of the CV API's
+ * @param {string}            b64data       Base64 Data compressed
+ * @param {Socket}            socket  SocketIo object
+ * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+ */
+module.exports.imgToTag = (b64data, socket) => {
+    sessionSocket = socket;
+    return new Promise((resolve, reject) => {
+        /**Asserts correct file creaetion*/
+        FileURI.saveB64toUrl(b64data)
+            .then((fileLoc) => {
+                /**Clarifai req*/
+                clarifai.getLabels(fileLoc.publicURL)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log("ERR API: " + err));
 
-                    /**Cloudsight req*/
-                    // cloudsight.getDescr(fileLoc.publicURI)
-                    //     .then((metadata) => onResp(metadata,socket,mMetaArray,fileLoc.id));
+                clarifai.getColors(fileLoc.publicURL)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
 
-                })
-                .finally(function () {
-                    resolve(mMetaArray);
-                });
-        });
-    };
+                clarifai.getClothing(fileLoc.publicURL)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                /**Google req
+                 * note the use of 'localURIexplicit'
+                 * rather than 'publicURL'*/
+                gvision.getLogos(fileLoc.localURIexplicit)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                gvision.getLabels(fileLoc.localURIexplicit)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                gvision.getColors(fileLoc.localURIexplicit)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                gvision.getText(fileLoc.localURIexplicit)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                /**Imagga req*/
+                imagga.getTags(fileLoc.publicURL)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                imagga.getColors(fileLoc.publicURL)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                /**Microsoft Cognitive req*/
+                msft.getOCR(fileLoc.publicURL)
+                    .then((meta) => onResp(meta, fileLoc.id))
+                    .catch((err) => console.log(err));
+
+                msft.getDescr(fileLoc.publicURL)
+                    .then((meta) => meta.forEach((elem) => {
+                        onResp(elem, fileLoc.id);
+                    }))
+                    .catch((err) => console.log(err));
+
+                /**Cloudsight req*/
+                // cloudsight.getDescr(fileLoc.publicURL)
+                //     .then((meta) => onResp(meta,socket,mMetaArray,fileLoc.id));
+                //     .catch((err)=> console.log(err));
+
+            })
+            .catch(function (err) {
+                console.log("err here: " + err);
+                reject(err);
+            })
+            .finally(() => {
+                resolve(mMetaArray);
+            });
+    });
+};
 
 /**
  * Delegates the emit function of the socket
  * just after receiving the response
  * and stores the data in a metaTag Array
- * @param {string}            URL       Absolute URI of the img
- * @param {Socket}            SocketIo  SocketIo object
- * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+ * @param {Meta}            mMeta       Metadata
+ * @param {String}            id        Unique id pairing the img and the request
+ * @param {Array}            mMetaArray  Array wrapper of the whole meta
+ * @param {Socket}            socket  SocketIo object
  */
-function onResp(mMeta, socket, mMetaArray) {
-    mMeta.setReqId(shortid);
-    socket.emit('METADATA', mMeta);
+function onResp(mMeta, id) {
+    // return new Promise((resolve, reject) => {
+    // if(firstTime)
+    mMeta.setReqId(id);
+    sessionSocket.emit('METADATA', mMeta);
     mMetaArray.push(mMeta);
-    // mMetaArray.forEach(function (elem) {
+    //TODO mMetaArray.forEach(function (elem) {
     //     console.log("UNTIL NOW: "+JSON.stringify(elem));
     // })
-};
+    // });
+}
 
 class FileURI {
     constructor() {
         this.id = shortid.generate();
         this.localURI = 'public/uploads/' + this.id + '.jpg';
         this.localURIexplicit = './' + this.localURI;  //Required by Google
-        this.publicURI = 'https://shotgot.com/' + this.localURI;
+        this.publicURL = 'https://shotgot.com/' + this.localURI;
     }
 
     /**
-     /**Convert data64 into a file saved into a public folder
-     * @param {string}            URL       Absolute URI of the img
-     * @param {Socket}            SocketIo  SocketIo object
-     * * @return {URL} Img public URL
+     /**Save data64 stream into a file allocated in a public folder
+     * @param {string}            b64data       Base64 Data of the img
+     * * @return {FileURI}   FileURI as a wrapper of both local and public img URL
      */
-    static safeAndGetImgUrl(b64data) {
+    static saveB64toUrl(b64data) {
         return new Promise((resolve, reject) => {
             let fileLoc = new FileURI();
-            fs.writeFile(fileLoc.localURI, new Buffer(b64data, "base64"), function (err) {
-                if (err) {
-                    console.log("FileCreationError: " + err);
-                    reject(err);
-                } else {
-                    console.log("filename created: " + fileLoc.localURI + " in " + fileLoc.publicURI);
-                    resolve(fileLoc);
-                }
-            });
+            fs.writeFile(fileLoc.localURI, new Buffer(b64data, 'base64'),
+                function (err) {
+                    if (err) reject(err);
+                    else {
+                        console.log("filename created in: " + fileLoc.publicURL);
+                        resolve(fileLoc);
+                    }
+                });
         });
     }
 }
-;
-
-
-
-
-

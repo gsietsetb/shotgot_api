@@ -29,10 +29,9 @@ module.exports.getLabels = (imgUrl) => {
         /**TODO Test if faster with b64 data directly*/
         // clarifai.models.predict(Clarifai.GENERAL_MODEL, {base64: base64Data})
         clarifai.models.predict(Clarifai.GENERAL_MODEL, imgUrl)
-            .then(function (resp) {
+            .then((resp) => {
                 let labs = [];
-                resp.outputs[0].data.concepts.forEach(function (elem) {
-                    // console.log(elem.name+" CLRF: "+elem.value);
+                resp.outputs[0].data.concepts.forEach((elem) => {
                     if (elem.value > 0.9)
                         labs.push(elem.name);
                 });
@@ -47,14 +46,13 @@ module.exports.getLabels = (imgUrl) => {
 
 /**
  * Calls predict for Colors in Clarify
- * @param {string}            URL       Absolute URI of the img
- * @param {Socket}            SocketIo  SocketIo object
+ * @param {string}            imgUrl       Absolute URI of the img
  * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
  */
 module.exports.getColors = (imgUrl) => {
     return new Promise((resolve, reject) => {
         clarifai.models.predict(Clarifai.COLOR_MODEL, imgUrl)
-            .then(function (resp) {
+            .then((resp) => {
                 let cols = [];
                 resp.outputs[0].data.colors.forEach((elem) => cols.push(elem.w3c.hex));
                 resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
@@ -67,15 +65,14 @@ module.exports.getColors = (imgUrl) => {
 /**
  * Calls predict for Clothing Model in Clarify.
  * Not Really Accurated
- * @param {string}            URL       Absolute URI of the img
- * @param {Socket}            SocketIo  SocketIo object
- * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
+ * @param {string}            imgUrl       Absolute URI of the img
+ * * @return {Promise(resolve, reject)} A Promise that is fulfilled with the API response or rejected with an error
  */
 module.exports.getClothing = (imgUrl) => {
     return new Promise((resolve, reject) => {
         clarifai.models.predict("e0be3b9d6a454f0493ac3a30784001ff", imgUrl)
-            .then(function (resp) {
-                resolve(meta = new Meta(enums.VisionAPI.API_CLARIFAI,
+            .then((resp) => {
+                resolve(new Meta(enums.VisionAPI.API_CLARIFAI,
                     enums.TagType.TYPE_TAG,
                     decodeURI((resp.outputs[0].data.concepts[0].name))));
             })

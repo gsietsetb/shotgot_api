@@ -32,70 +32,68 @@ module.exports.imgToTag = (b64data, socket) => {
         /**Asserts correct file creaetion*/
         FileURI.saveB64toUrl(b64data)
             .then((fileLoc) => {
-                /**Clarifai req*/
-                clarifai.getLabels(fileLoc.publicURL)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log("ERR API: " + err));
+                /**When the file is created, its public URL is populated to ALL the CV APIs*/
+                Promise.all([
 
-                clarifai.getColors(fileLoc.publicURL)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
+                    /**Clarifai req*/
+                    clarifai.getLabels(fileLoc.publicURL)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log("ERR API: " + err)),
+                    /**@deprecated*/
+                    clarifai.getClothing(fileLoc.publicURL)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
+                    clarifai.getColors(fileLoc.publicURL)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
 
-                clarifai.getClothing(fileLoc.publicURL)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
+                    /**Google req  //note the use of 'localURIexplicit' rather than 'publicURL'*/
+                    gvision.getLogos(fileLoc.localURIexplicit)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
+                    gvision.getLabels(fileLoc.localURIexplicit)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
+                    /**@deprecated*/
+                    gvision.getColors(fileLoc.localURIexplicit)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
+                    gvision.getText(fileLoc.localURIexplicit)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
 
-                /**Google req
-                 * note the use of 'localURIexplicit'
-                 * rather than 'publicURL'*/
-                gvision.getLogos(fileLoc.localURIexplicit)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
+                    /**Imagga req*/
+                    imagga.getTags(fileLoc.publicURL)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
+                    imagga.getColors(fileLoc.publicURL)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
 
-                gvision.getLabels(fileLoc.localURIexplicit)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
+                    /**Microsoft Cognitive req*/
+                    msft.getOCR(fileLoc.publicURL)
+                        .then((meta) => onResp(meta, fileLoc.id))
+                        .catch((err) => console.log(err)),
+                    msft.getDescr(fileLoc.publicURL)
+                        .then((meta) => meta.forEach((elem) => {
+                            onResp(elem, fileLoc.id);
+                        }))
+                        .catch((err) => console.log(err))
 
-                gvision.getColors(fileLoc.localURIexplicit)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
+                    /**Cloudsight req*/
+                    // cloudsight.getDescr(fileLoc.publicURL)
+                    //     .then((meta) => onResp(elem, fileLoc.id);
+                    //     .catch((err)=> console.log(err));
 
-                gvision.getText(fileLoc.localURIexplicit)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
-
-                /**Imagga req*/
-                imagga.getTags(fileLoc.publicURL)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
-
-                imagga.getColors(fileLoc.publicURL)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
-
-                /**Microsoft Cognitive req*/
-                msft.getOCR(fileLoc.publicURL)
-                    .then((meta) => onResp(meta, fileLoc.id))
-                    .catch((err) => console.log(err));
-
-                msft.getDescr(fileLoc.publicURL)
-                    .then((meta) => meta.forEach((elem) => {
-                        onResp(elem, fileLoc.id);
-                    }))
-                    .catch((err) => console.log(err));
-
-                /**Cloudsight req*/
-                // cloudsight.getDescr(fileLoc.publicURL)
-                //     .then((meta) => onResp(meta,socket,mMetaArray,fileLoc.id));
-                //     .catch((err)=> console.log(err));
-
+                ]).then(metas => {
+                    /**Returns */
+                    console.log("From PicToTag: " + metas);
+                    resolve(metas);
+                });
             })
-            .catch(function (err) {
-                console.log("err here: " + err);
+            .catch((err) => {
+                console.log("PicToTag Err: " + err);
                 reject(err);
-            })
-            .finally(() => {
-                resolve(mMetaArray);
             });
     });
 };
@@ -114,10 +112,8 @@ function onResp(mMeta, id) {
     // if(firstTime)
     mMeta.setReqId(id);
     sessionSocket.emit('METADATA', mMeta);
+    // console.log("Ended subPromise: "+mMeta);
     mMetaArray.push(mMeta);
-    //TODO mMetaArray.forEach(function (elem) {
-    //     console.log("UNTIL NOW: "+JSON.stringify(elem));
-    // })
     // });
 }
 

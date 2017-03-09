@@ -20,11 +20,15 @@ io.on('connection', (socket) => {
     // when the client emits 'PIC_REQ', this listens and executes
     socket.on('PIC_REQ', (base64Data) => {
         console.log("User emitting: ");
+
+        /**After receiving the img as base64 data
+         * from the phone, it gets tags and metadata*/
         picToTag.imgToTag(base64Data, socket)
-            .then(/**(metaArray) => ) //seems to be TODO since is returned not full*/)
+            .then((metaArray) => console.log(metaArray.toString)) //seems to be TODO since is returned not full*/)
             .catch((err) => {
                 console.log("Server Err: " + err);
             });
+
     });
 
     /**TODO handle disconnections from client*/

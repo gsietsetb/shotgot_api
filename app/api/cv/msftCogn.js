@@ -91,7 +91,8 @@ module.exports.getDescr = (location) => {
                         enums.TagType.TYPE_COLORS,
                         resp.color.accentColor));
 
-                    /**Tag*/
+                    /**@deprecated
+                     /**Tag
                     let tags = [];
                     resp.tags.forEach((elem) => {
                         if (elem.confidence > 0.2)
@@ -99,9 +100,9 @@ module.exports.getDescr = (location) => {
                     });
                     metaArray.push(new Meta(enums.VisionAPI.API_MICROSOFT,
                         enums.TagType.TYPE_TAGS,
-                        tags));
+                     tags));*/
 
-                    /**DescriptionTag*/
+                    /** DescriptionTag*/
                     let tagDescr = [];
                     resp.description.tags.forEach((elem) => {
                         tagDescr.push(elem);

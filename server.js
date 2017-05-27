@@ -24,7 +24,7 @@ io.on('connection', (socket) => {
         /**After receiving the img as base64 data
          * from the phone, it gets tags and metadata*/
         picToTag.imgToTag(base64Data, socket)
-            .then((metaArray) => console.log(metaArray.toString)) //seems to be TODO since is returned not full*/)
+            .then((metaArray) => console.log(JSON.stringify(metaArray))) //seems to be TODO since is returned not full*/)
             .catch((err) => {
                 console.log("Server Err: " + err);
             });

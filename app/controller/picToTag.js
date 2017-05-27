@@ -37,26 +37,26 @@ module.exports.imgToTag = (b64data, socket) => {
 
                     /**Clarifai req*/
                     clarifai.getLabels(fileLoc.publicURL)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log("ERR API: " + err)),
                     /**@deprecated*/
                     clarifai.getClothing(fileLoc.publicURL)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
                     clarifai.getColors(fileLoc.publicURL)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
 
                     /**Google req  //note the use of 'localURIexplicit' rather than 'publicURL'*/
                     gvision.getLogos(fileLoc.localURIexplicit)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
                     gvision.getLabels(fileLoc.localURIexplicit)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
                     /**@deprecated*/
                     gvision.getColors(fileLoc.localURIexplicit)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
                     gvision.getText(fileLoc.localURIexplicit)
                         .then((meta) => onResp(meta, fileLoc.id))
@@ -64,19 +64,19 @@ module.exports.imgToTag = (b64data, socket) => {
 
                     /**Imagga req*/
                     imagga.getTags(fileLoc.publicURL)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
                     imagga.getColors(fileLoc.publicURL)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
 
                     /**Microsoft Cognitive req*/
                     msft.getOCR(fileLoc.publicURL)
-                        .then((meta) => onResp(meta, fileLoc.id))
+                        .then((meta) => resolve(onResp(meta, fileLoc.id)))
                         .catch((err) => console.log(err)),
                     msft.getDescr(fileLoc.publicURL)
                         .then((meta) => meta.forEach((elem) => {
-                            onResp(elem, fileLoc.id);
+                            resolve(onResp(elem, fileLoc.id));
                         }))
                         .catch((err) => console.log(err))
 
@@ -112,8 +112,9 @@ function onResp(mMeta, id) {
     // if(firstTime)
     mMeta.setReqId(id);
     sessionSocket.emit('METADATA', mMeta);
-    // console.log("Ended subPromise: "+mMeta);
+    console.log("Ended subPromise: " + JSON.stringify(mMeta));
     mMetaArray.push(mMeta);
+    return mMeta;
     // });
 }
 

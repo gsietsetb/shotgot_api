@@ -1,0 +1,39 @@
+<!-- Map Content -->
+<div class="map-filter" style="text-align: right">
+    <a onclick="toggleFilters()" id="filterToggler" class="filter-avail button">
+        <!--filter-btn btn btn-default btn-lg">-->
+        <span class="network-name" style="color: #46b8da"><i class="fa fa-bars"></i>Filtros: </span>
+    </a>
+    <div id="filters" style="display: none">
+        <a href="#parkRent" class="filter-avail filter-btn btn btn-default btn-lg">
+            <img src="img/estac.png" height="32" width="32"/>
+            <span class="network-name">Estacionamientos</span>
+        </a>
+        <br>
+        <a href="#rideshare" class="filter-btn btn btn-default btn-lg">
+            <img src="img/electric-car.png" height="32" width="32"/>
+            <span class="network-name" >Autos Electricos</span>
+        </a>
+        <br>
+        <a href="#parkRent" class="filter-btn btn btn-default btn-lg">
+            <img src="img/garage.png" height="32" width="32"/>
+            <span class="network-name">Cocheras Part.</span>
+        </a>
+        <br>
+        <a href="#carRent" class="filter-btn btn btn-default btn-lg">
+            <img src="img/car-key.png" height="32" width="32"/>
+            <span class="network-name">Autos Part.</span>
+        </a>
+        <br>
+        <a href="#carpool" class="filter-btn btn btn-default btn-lg">
+            <img src="img/carpool.png" height="32" width="32"/>
+            <span class="network-name">Trayectos</span>
+        </a>
+    </div>
+</div>
+<div id="map" class="location-map" style="display: block;margin-top:0vh"></div>
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-bn_olNnGeONP4QLJC0NSB6RJevhmSm4&callback=initMap"></script>
+<!-- Own edited map-->
+<script src="js/main_map.js"></script>

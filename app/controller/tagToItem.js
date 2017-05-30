@@ -9,12 +9,9 @@ let fs = require("fs"),
     shortid = require('shortid'),
     Promise = require("bluebird"),
 
-    /**CV APIs requires*/
-    clarifai = require('./../api/cv/clarifai'),
-    msft = require('./../api/cv/msftCogn'),
-    gvision = require('./../api/cv/gvision'),
-    imagga = require('./../api/cv/imagga'),
-    // let cloudsight = require('./../api/cv/cloudsight');
+    /**Affiliate Programs requires*/
+    amazon = require('./app/api/affiliate/amazon'),
+    aliexpress = require('./app/api/affiliate/aliexpress'),
 
     /**Global Variables*/
     sessionSocket,
@@ -26,7 +23,7 @@ let fs = require("fs"),
  * @param {Socket}            socket  SocketIo object
  * * @return {Promise(response, error)} A Promise that is fulfilled with the API response or rejected with an error
  */
-module.exports.imgToTag = (b64data, socket) => {
+module.exports.picToTag = (mMeta, socket) => {
     sessionSocket = socket;
     return new Promise((resolve, reject) => {
         /**Asserts correct file creaetion*/

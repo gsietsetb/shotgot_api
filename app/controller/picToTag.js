@@ -5,20 +5,20 @@
 "use strict";
 
 /**Helpers & Utils*/
-let fs = require("fs"),
-    shortid = require('shortid'),
-    Promise = require("bluebird"),
+let fs       = require("fs"),
+    shortid  = require('shortid'),
+    Promise  = require("bluebird"),
 
     /**CV APIs requires*/
     clarifai = require('./../api/cv/clarifai'),
-    msft = require('./../api/cv/msftCogn'),
-    gvision = require('./../api/cv/gvision'),
-    imagga = require('./../api/cv/imagga'),
+    msft     = require('./../api/cv/msftCogn'),
+    gvision  = require('./../api/cv/gvision'),
+    imagga   = require('./../api/cv/imagga'),
     // let cloudsight = require('./../api/cv/cloudsight');
 
     /**Global Variables*/
     sessionSocket,
-    mMetaArray = [];
+    metaList = [];
 
 /**
  * Wrapper for each of the CV API's
@@ -113,7 +113,7 @@ function onResp(mMeta, id) {
     mMeta.setReqId(id);
     sessionSocket.emit('METADATA', mMeta);
     console.log("Ended subPromise: " + JSON.stringify(mMeta));
-    mMetaArray.push(mMeta);
+    metaList.push(mMeta);
     return mMeta;
     // });
 }

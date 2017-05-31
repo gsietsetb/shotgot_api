@@ -2,8 +2,9 @@
  * Socket.js
  * In charge of routing the incoming socket clients */
 
-const io        = require('socket.io')(server),
-      picToTag  = require("./app/controller/picToTag.js");
+const server    = require("../server"),
+      io        = require('socket.io')(server),
+      picToTag  = require("./controller/picToTag.js");
 
 io.on('connection', (socket) => {
     console.log("User connected: ");

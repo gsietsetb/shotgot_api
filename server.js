@@ -6,7 +6,7 @@ require('dotenv').config();
 // call the required packages
 const app           = require('express')(),
     express         = require('express'),
-    expressLayouts  = require('express-ejs-layouts'),
+    // pug             = require('pug'),
     server          = require('http').createServer(app),
 
     //Server Side
@@ -16,14 +16,13 @@ const app           = require('express')(),
 app.use(express.static(__dirname + '/public'));
 
 // set ejs as our templating engine
-app.set('view engine', 'ejs');
-app.use(expressLayouts);
+// app.set('view engine', 'pug');
 
 // ROUTES FOR OUR STATIC API
 app.use(require('./app/routes'));
 
 // Socket.io balancing
-app.use(require('./app/socket'));
+// app.use(require('./app/socket'));
 
 server.listen(port, () => {
     console.log('Server listening at port %d', port);
